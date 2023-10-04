@@ -1,27 +1,27 @@
 package noapplet.example;
-import java.awt.Graphics;
-import java.awt.Color;
-import java.awt.Polygon;
+
+import java.awt.*;
 
 public class Triangle extends Shape {
-    private int[] xPoints, yPoints;
-
-    /**
-     * @param x indicates center location of the triangle
-     * @param y indicates center location of the triangle
-     * @param c color of the triangle
-     * @param xPoints x location of each corner from the center of triangle
-     * @param yPoints y location of each corner from the center of triangle
-     */
-    public Triangle(int x, int y, Color c, int[] xPoints, int[] yPoints) {
-        super(x, y, c);
-        this.xPoints = xPoints;
-        this.yPoints = yPoints;
+    Triangle(int x, int y, int size, Color color) {
+        super(x, y, size, color);
     }
 
-    @Override
-    public void draw(Graphics g) {
-        g.setColor(c);
-        g.fillPolygon(new Polygon(xPoints, yPoints, 3));
+    public void draw(Graphics brush){
+        brush.setColor(this.color);
+
+        int[] xPoints = {
+                x,               // x-coordinate of the top
+                x - (size / 2),  // x-coordinate of the bottom-left
+                x + (size / 2)   // x-coordinate of the bottom-right
+        };
+
+        int[] yPoints = {
+                y,               // y-coordinate of the top
+                y + size,        // y-coordinate of the bottom-left
+                y + size         // y-coordinate of the bottom-right
+        };
+
+        brush.fillPolygon(xPoints, yPoints, 3);
     }
 }

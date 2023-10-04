@@ -1,27 +1,15 @@
 package noapplet.example;
-import java.awt.Graphics;
-import java.awt.Color;
+
+import java.awt.*;
 
 public class Rectangle extends Shape {
-    private int width, height;
 
-    /**
-     * @param x location of rectangle
-     * @param y location of rectangle
-     * @param c color of rectangle
-     * @param width of rectangle
-     * @param height of rectangle
-     */
-    public Rectangle(int x, int y, Color c, int width, int height) {
-        super(x, y, c);
-        this.width = width;
-        this.height = height;
+    Rectangle(int x, int y, int size, Color color) {
+        super(x, y, size, color);
     }
 
-    @Override
-    public void draw(Graphics g) {
-        g.setColor(c);
-        g.drawRect(x, y, width, height);
+    public void draw(Graphics brush){
+        brush.setColor(this.color);
+        brush.drawRect(this.x, this.y, this.size, this.size);
     }
 }
-

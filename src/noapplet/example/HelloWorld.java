@@ -8,7 +8,7 @@ import java.awt.Graphics;
 import noapplet.NoApplet;
 
 /**
- * Simple NoApplet app to draw a text and an image. The displayed image
+ * Simple NoAppet app to draw a text and an image. The displayed image
  * is obtained from the file <code>res/rabbit.jpg</code>, where
  * <code>res</code> is the resource directory of your Java project.
  * Refer to your IDE to designate the resource directory for your project.
@@ -22,43 +22,45 @@ public class HelloWorld extends NoApplet {
 	public HelloWorld(String[] params) {
 		super(params);
 	}
-
+	
     protected void paintComponent(Graphics g) {
         Dimension d = getSize();
         g.setColor(Color.LIGHT_GRAY);
         g.fillRect(0, 0, d.width, d.height);
+        g.setFont(new Font("San-serif", Font.BOLD, 24));
+        g.setColor(new Color(255, 215,0));
+        g.drawString("OMOK by Ryan", 60, 40);
+        //g.drawImage(getImage("rabbit.jpg"), 40, 60, this);
 
-        // Draw the Omok board
-        int gridSize = 15;
-        int cellSize = 30; // Size of each cell in pixels
-        int offset = 30; // Offset from the edge of the window
+        // Line drawing set up
+        g.setColor(Color.DARK_GRAY);
+        int C = 15; // Number of Lines
+        int D = 31; // Spacing of lines
 
-        g.setColor(Color.BLACK);
-        for (int i = 0; i < gridSize; i++) {
-            // Draw horizontal lines
-            g.drawLine(offset, offset + i * cellSize, offset + (gridSize - 1) * cellSize, offset + i * cellSize);
-            // Draw vertical lines
-            g.drawLine(offset + i * cellSize, offset, offset + i * cellSize, offset + (gridSize - 1) * cellSize);
+        // Draws horizontal lines
+        for(int i = 0; i <= C; i++){
+           g.drawLine(0, i*D, 500, i*D);
         }
 
-        // Draw two filled circles (stones) at specific intersections
-        int stoneSize = 28; // Size of the stone in pixels
+        // Draws vertical lines
+        for(int i = 0; i <= C; i++){
+            g.drawLine(i*D, 0, i*D,500);
+        }
 
-        // Draw a black stone at (5, 5)
-        g.setColor(Color.BLACK);
-        g.fillOval(offset + 5 * cellSize - stoneSize / 2,
-                offset + 5 * cellSize - stoneSize / 2, stoneSize, stoneSize);
+        // Draws player oval
+        g.setColor(Color.blue);
+        g.drawOval(240,240,15,15);
+        g.fillOval(240,240,15,15);
 
-        // Draw a white stone at (7, 7)
-        g.setColor(Color.WHITE);
-        g.fillOval(offset + 7 * cellSize - stoneSize / 2,
-                offset + 7 * cellSize - stoneSize / 2, stoneSize, stoneSize);
-
+        // Draws opponent oval
+        g.setColor(Color.red);
+        g.drawOval(271,271,15,15);
+        g.fillOval(271,271,15,15);
     }
 
     public static void main(String[] args) {
     	//new HelloWorld().run();
     	// or specify optional parameters such as the window size
-        new HelloWorld(new String[] {"width=550", "height=550"}).run();
+        new HelloWorld(new String[] {"width=500", "height=500"}).run();
     }
 }

@@ -1,23 +1,16 @@
 package noapplet.example;
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 
-public abstract class Shape {
-    protected int x, y;
-    protected Color c;
+public class Shape {
+    protected int x;
+    protected int y;
+    protected int size;
+    protected Color color;
 
-    /**
-     * this is a class where Shape is made into a constructor for
-     * each shape to have its own attributes
-     * @param x location of shape
-     * @param y location of shape
-     * @param c color of the shape using draw method
-     */
-    public Shape(int x, int y, Color c) {
+    Shape(int x, int y, int size, Color color){
         this.x = x;
         this.y = y;
-        this.c = c;
+        this.size = size;
+        this.color = color;
     }
-
-    public abstract void draw(Graphics g);
 }
