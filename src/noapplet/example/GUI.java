@@ -6,71 +6,99 @@ public class GUI {
     public GUI(){
         width = 15;
         height = 15;
-        board = new String[width+1][height+1];
+        board = new String[(2 * height)+4][width + 3];
     }
-    public void createBoard(){
-        //WARNING: the following code is ugly I shall fix it some point -Sophia :)
-        System.out.println("GAME BOARD");
-
-        board[0][0] = " ";
-
-        String intersection = "╋";
-        String leftEdge = "┣";
-        String rightEdge = "┫";
-        String bottomEdge = "┻";
-        String bottomLeftC = "┗";
-        String bottomRightC = "┛";
-        String topRightC = "┓";
-        String topLeftC = "┏";
-        String topEdge = "┳";
-
-        //The following fills the coordinate values for the user to understand
-        for(int i = 1; i < height+1; i++){
-            board[0][i] = String.valueOf(i);
-            board[i][0] = String.valueOf(i);
-            if(i < 10){
-                board[i][0] += " ";
+    public GUI(int size){
+        if(size >= 15) {
+            this.width = size;
+            this.height = size;
+            this.board = new String[(2 * height)+4][width + 3];
+        }
+        else{
+            this.width = 15;
+            this.height = 15;
+            this.board = new String[(2 * height)+4][width + 3];
+        }
+    }
+    public void createBoard() {
+        System.out.println("GAME BOARD:");
+        //Creates numbers on the side for user
+        board[0][0] = "  ";
+        board[0][1] = "    ";
+        board[1][0] = "  ";
+        int num = 1;
+        for(int i = 2; i < width + 2; i++){
+            board[0][i] = String.valueOf(num) + "  ";
+            num++;
+            if (num < 10){
+                board[0][i] += " ";
             }
         }
-
-        //The following fills the corners
-        board[1][1] = topLeftC;
-        board[1][width] = topRightC;
-        board[height][1] = bottomLeftC;
-        board[height][width] = bottomRightC;
-
-        //The following fills the edges
-        for (int i = 2; i < height; i++) {
-            board[i][1] = leftEdge;
-            board[i][width] = rightEdge;
-            board[1][i] = topEdge;
-            board[width][i] = bottomEdge;
+        board[0][width+2] = " ";
+        num = 1;
+        for(int i =  2; i < (2 * height) + 2; i++){
+            if(i % 2 != 0){
+                board[i][0] = String.valueOf(num);
+                if(num < 10){
+                    board[i][0] += " ";
+                }
+                num++;
+            }
+            else{
+                board[i][0] = "  ";
+            }
         }
-        //The following should fill
-        for (int i = 2; i < height; i++){
-            for (int j = 2; j < width; j++){
-                board[i][j] = intersection;
+        board[(2*height) + 2][0] = "  ";
+        board[(2*height) + 3][0] = "  ";
+
+        for (int i = 1; i < (2 * height)+4; i++) {
+            for (int j = 1; j < width + 3; j++) {
+                if(i % 2 != 0){
+                    if (j == height+2){
+                        board[i][j] = "+";
+                    }
+                    else {
+                        board[i][j] = "+---";
+                    }
+                }
+                else{
+                    board[i][j] = "|   ";
+                }
             }
         }
     }
-    public void drawStone(Player player, int x, int y){
-        //The following method will update stones
-    }
-
     public void drawBoard(){
         //The following method will print the board
-        for (int i = 0; i < width+1; i++) {
-            for (int j = 0; j < height+1; j++) {
+        for (int i = 0; i < (2*height)+4; i++) {
+            for (int j = 0; j < width+3; j++) {
                 System.out.print(board[i][j] + " ");
             }
             System.out.println(); // Move to the next row
         }
     }
-    public static void main(String[] args) {
-        GUI test = new GUI();
-        test.createBoard();
-        test.drawBoard();
+    public void drawStone(int x, int y){
 
     }
-
+    public void print(){
+        System.out.println("{");
+        for (int i = 0; i < board.length; i++) {
+            System.out.print("{");
+            for (int j = 0; j < board[i].length; j++) {
+                System.out.print(board[i][j]);
+                if (j < board[i].length - 1) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.print("}");
+            if (i < board.length - 1) {
+                System.out.println(",");
+            }
+        }
+        System.out.println("\n}");
+    }
+    public static void main(String[] args) {
+        GUI test = new GUI(15);
+        test.createBoard();
+        test.drawBoard();
+    }
 }
