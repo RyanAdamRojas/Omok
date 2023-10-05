@@ -9,7 +9,7 @@ public class Game {
     private Player player2;
     private Player currentPlayer;
     private String mode;
-    private boolean cheatsActive;
+    private boolean cheatsActive; // not used
 
     Game(String newMode, int boardSize) {
         this.board = new Board(boardSize);
@@ -19,16 +19,6 @@ public class Game {
         Random coinToss = new Random();
         if(coinToss.nextBoolean()) currentPlayer = player1;
         else currentPlayer = player2;
-    }
-
-    public void addPlayer(String name, boolean isHuman) {
-        // Sets Player 1
-        if (player1 == null) setPlayer1(name, isHuman);
-        else if (player2 == null) setPlayer2(name, isHuman);
-        else { System.out.println("Max Players reached: \n"
-                    + player1.toString() + "\n"
-                    + player2.toString());
-        }
     }
 
     public void swapCurrentPlayer(){
@@ -46,12 +36,12 @@ public class Game {
     }
 
     public void setPlayer1(String name, boolean isHuman) {
-        if (isHuman) player1 = new HumanPlayer(name, "X" /*GUI.whiteStone*/); // FIXME
+        if (isHuman) player1 = new HumanPlayer(name, "●");
         else player1 = new ComputerPlayer( "X" /*GUI.whiteStone*/);
     }
 
     public void setPlayer2(String name, boolean isHuman) {
-        if (isHuman) player2 = new HumanPlayer(name,  "O" /*GUI.blackStone*/);
+        if (isHuman) player2 = new HumanPlayer(name,  "○");
         else player2 = new ComputerPlayer( "X" /*GUI.blackStone*/);
     }
 
