@@ -76,8 +76,12 @@ public class GUI {
             System.out.println(); // Move to the next row
         }
     }
-    public void drawStone(int x, int y){
-
+    public void drawStone(int x, int y, String symbol){
+        int xIndex = x + 1;
+        int yIndex = y + 3;
+        String replace = board[yIndex][xIndex].substring(0);
+        replace = symbol;
+        board[yIndex][xIndex] = replace + "---";
     }
     public void print(){
         System.out.println("{");
@@ -99,6 +103,9 @@ public class GUI {
     public static void main(String[] args) {
         GUI test = new GUI(15);
         test.createBoard();
+        test.drawBoard();
+        test.drawStone(1,2, "X");
+        test.drawStone(3,2, "0");
         test.drawBoard();
     }
 }
