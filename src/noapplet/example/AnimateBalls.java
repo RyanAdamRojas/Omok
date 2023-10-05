@@ -1,7 +1,7 @@
 package noapplet.example;
 import java.awt.*;
 
-public class AnimateBalls extends AnimationNoApplet {
+public class AnimateBalls extendsAnimationNoApplet {
     // Change size at will
     private static final Bounceable[] balls = new Bounceable[5];
     protected int delay = 1; // Overridden!!!!!!!
