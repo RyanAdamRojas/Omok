@@ -40,3 +40,5 @@ public class AnimateBalls extends AnimationNoApplet {
         new AnimateBalls().run();
     }
 }
+
+// :)
