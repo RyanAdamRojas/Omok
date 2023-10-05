@@ -4,7 +4,7 @@ public class Board {
     private String[][] board;
     private int size = 15;
     private int activeStoneCount = 0;
-    private int maxStoneCount = -1;
+    private int maxStoneCount = 0;
     private boolean isFull = false;
     private boolean cheatsActive = false;
 
@@ -41,10 +41,11 @@ public class Board {
 
     public boolean requestMove(int x, int y, String symbol) {
         if (board[x-1][y-1] == null) {
+            // Offset of -1 for coordinate to array index
             updateBoard(x - 1, y - 1, symbol);
             return true;
         }
-        return false;
+        return false; // Cell unavailable
     }
 
     public void updateBoard(int x, int y, String symbol) {
