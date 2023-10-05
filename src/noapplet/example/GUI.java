@@ -3,6 +3,7 @@ package noapplet.example;
 public class GUI {
     private int width, height;
     private String[][] board;
+    // private whiteStone = "\u8509" // TODO
     public GUI(){
         width = 15;
         height = 15;
