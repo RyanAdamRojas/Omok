@@ -32,5 +32,5 @@ public class ComputerPlayer extends Player {
         String randomName = names[random.nextInt(10)];
         this.name = randomName;
         this.symbol = symbol;
-    }
+    } // DELETEME
 }

@@ -10,6 +10,7 @@ public class Game {
     private Player currentPlayer;
     private String mode;
     private boolean cheatsActive;
+    // DELETEME
 
     Game(String newMode, int boardSize) {
         this.board = new Board(boardSize);
