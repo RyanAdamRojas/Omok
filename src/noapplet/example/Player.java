@@ -30,7 +30,6 @@ public abstract class Player {
 //            case "STONE_PLACED":
 //            case "NOT_AVAILABLE":
 //        }
-        // DELTE ME
     }
 
     // Boilerplate Below: Setters and Getters
