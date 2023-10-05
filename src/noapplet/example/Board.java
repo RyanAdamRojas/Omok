@@ -1,3 +1,4 @@
+// Authors: Ryan Adam Rojas, Sophia Montenegro
 package noapplet.example;
 
 public class Board {
@@ -27,7 +28,6 @@ public class Board {
     }
 
     public String validateMove(Player player, int x, int y) {
-        // TODO FINISH THIS
         if (isCellAvailable(x, y)){
             placeStone(x, y, player.getSymbol());
             if (didWin()) return "PLAYER_WIN";
@@ -37,18 +37,46 @@ public class Board {
         else return "CELL_UNAVAILABLE";
     }
 
-    private boolean didWin(){ // TODO CHECK IF 5 STONES IN A ROW
-        return false;
-    }
     private boolean isCellAvailable(int x, int y){
         // -1 for coordinate to array index offset
         if (cells[x-1][y-1] == null) return true;
         else return false;
     }
+
     private void placeStone(int x, int y, String symbol) {
         // -1 for coordinate to array index offset
         this.cells[x-1][y-1] = symbol;
         this.activeStoneCount++;
         if (activeStoneCount == maxStoneCount) isFull = true;
+    }
+
+    private boolean didWin(){ // TODO CHECK IF 5 STONES IN A ROW
+        return streakDiagnalRight() || streakiagnalLeft() || streakRows() || streakColumns();
+    }
+
+    private boolean streakDiagnalRight(){
+        // TODO
+        int count = 0;
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
+                //if (cells[i][j] == )
+            }
+        }
+        return false;
+    }
+
+    private boolean streakiagnalLeft(){
+        // TODO
+        return false;
+    }
+
+    private boolean streakRows(){
+        // TODO
+        return false;
+    }
+
+    private boolean streakColumns(){
+        // TODO
+        return false;
     }
 }

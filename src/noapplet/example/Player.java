@@ -1,3 +1,5 @@
+// Authors: Ryan Adam Rojas, Sophia Montenegro
+
 package noapplet.example;
 
 public abstract class Player {
@@ -20,7 +22,11 @@ public abstract class Player {
 //        String result = player.requestMove(board, 5, 15);
 //        switch(result){
 //            case "GAME_DRAW":
+//                  print(Game over);
+//                  return to main menu;
 //            case "PLAYER_WIN":
+//                    print(Game over);
+//                    return to main menu;
 //            case "STONE_PLACED":
 //            case "NOT_AVAILABLE":
 //        }
