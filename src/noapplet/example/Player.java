@@ -10,7 +10,7 @@ public abstract class Player {
     }
 
     public boolean requestMove(int x, int y, Board board){
-        return board.requestMove(x, y, this.symbol); // FIXME parameter "board" may not worek becayse its static
+        return board.requestMove(x, y, this.symbol); // FIXME parameter "board" may not work because its static
     }
 
     public void setName(String name) {
