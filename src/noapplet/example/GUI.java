@@ -3,24 +3,29 @@ package noapplet.example;
 public class GUI {
     private int width, height;
     private String[][] board;
-    // private whiteStone = "\u8509" // TODO
+    //Default Constructor
     public GUI(){
         width = 15;
         height = 15;
         board = new String[(2 * height)+4][width + 3];
     }
     public GUI(int size){
+        //Checks if the given size is 15 or greater than
+        //If so uses the given size
         if(size >= 15) {
             this.width = size;
             this.height = size;
             this.board = new String[(2 * height)+4][width + 3];
         }
+        //If not then sets the board to 15
         else{
             this.width = 15;
             this.height = 15;
             this.board = new String[(2 * height)+4][width + 3];
         }
     }
+
+    //Should create empty Omok Board
     public void createBoard() {
         System.out.println("GAME BOARD:");
         //Creates numbers on the side for user
@@ -52,6 +57,7 @@ public class GUI {
         board[(2*height) + 2][0] = "  ";
         board[(2*height) + 3][0] = "  ";
 
+        //Creates table/board
         for (int i = 1; i < (2 * height)+4; i++) {
             for (int j = 1; j < width + 3; j++) {
                 if(i % 2 != 0){
@@ -77,10 +83,16 @@ public class GUI {
             System.out.println(); // Move to the next row
         }
     }
-    public void drawStone(int x, int y){
-
+    public void drawStone(int x, int y, String symbol){
+        //The following will update the board with the new stone
+        int xIndex = x + 1;
+        int yIndex = y + 3;
+        String replace = board[yIndex][xIndex].substring(0);
+        replace = symbol;
+        board[yIndex][xIndex] = replace + "---";
     }
     public void print(){
+        //This method helped me debugg I will remove at the end :)
         System.out.println("{");
         for (int i = 0; i < board.length; i++) {
             System.out.print("{");
@@ -98,8 +110,12 @@ public class GUI {
         System.out.println("\n}");
     }
     public static void main(String[] args) {
+        //The following is used to test the class, I will remove at the end
         GUI test = new GUI(15);
         test.createBoard();
+        test.drawBoard();
+        test.drawStone(1,2, "X");
+        test.drawStone(3,2, "0");
         test.drawBoard();
     }
 }
