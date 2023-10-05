@@ -30,7 +30,7 @@ public class Board {
     public String validateMove(Player player, int x, int y) {
         if (isCellAvailable(x, y)){
             placeStone(x, y, player.getSymbol());
-            if (didWin()) return "PLAYER_WIN";
+            if (didWin(player.getSymbol())) return "PLAYER_WIN";
             else if (isFull) return "BOARD_FULL";
             else return "STONE_PLACED";
         }
@@ -50,32 +50,50 @@ public class Board {
         if (activeStoneCount == maxStoneCount) isFull = true;
     }
 
-    private boolean didWin(){ // TODO CHECK IF 5 STONES IN A ROW
-        return streakDiagnalRight() || streakiagnalLeft() || streakRows() || streakColumns();
+    private boolean didWin(String symbol){ // TODO CHECK IF 5 STONES IN A ROW
+
+        return streakDiagnalRight(symbol) || streakDiagnalLeft(symbol) || streakRows(symbol) || streakColumns(symbol);
     }
 
-    private boolean streakDiagnalRight(){
-        // TODO
+    private boolean streakDiagnalRight(String symbol){
+        // TODO TEST
         int count = 0;
+        // Loop through the 2D array 'cells'
         for (int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
-                //if (cells[i][j] == )
+
+                // Reseting count when starting a new diagonal
+                count = 0;
+
+                // Check for winning streak in diagnal right and downward  from current (i, j)
+                for (int k = 0; k < 5; k++) {  // Winning streak is k = 5
+                    if (i + k < this.size && j + k < this.size) { // Stay within bounds
+                        if (cells[i + k][j + k].equals(symbol)) {
+                            count++;
+                            if (count == 5) { // Found 5 in a row
+                                return true;
+                            }
+                        } else {
+                            count = 0; // Resets count anytime a non-matching cell is found
+                        }
+                    }
+                }
             }
         }
         return false;
     }
 
-    private boolean streakiagnalLeft(){
+    private boolean streakDiagnalLeft(String symbol){
         // TODO
         return false;
     }
 
-    private boolean streakRows(){
+    private boolean streakRows(String symbol){
         // TODO
         return false;
     }
 
-    private boolean streakColumns(){
+    private boolean streakColumns(String symbol){
         // TODO
         return false;
     }
