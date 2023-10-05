@@ -12,6 +12,6 @@ public abstract class Player {
     }
 
     public void requestMove(int x, int y){
-        Board.requestMove(this); // What happens with 'this'?
+        //Board.requestMove(this); // What happens with 'this'?
     }
 }
