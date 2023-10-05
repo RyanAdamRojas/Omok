@@ -17,7 +17,20 @@ public abstract class Player {
         this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setSymbol(String symbol) {
         this.symbol = symbol;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    @Override
+    public String toString(){
+        return "Player: " + this.getName() + " as " + this.getSymbol();
     }
 }
