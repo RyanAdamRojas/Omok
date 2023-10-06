@@ -27,10 +27,10 @@ public class Board {
         }
     }
 
-    public String validateMove(Player player, int x, int y) {
+    public String validateMove(String playerSymbol, int x, int y) {
         if (isCellAvailable(x, y)){
-            placeStone(x, y, player.getSymbol());
-            if (didWin(player.getSymbol())) return "PLAYER_WIN";
+            placeStone(x, y, playerSymbol);
+            if (didWin(playerSymbol)) return "PLAYER_WIN";
             else if (isFull) return "BOARD_FULL";
             else return "STONE_PLACED";
         }

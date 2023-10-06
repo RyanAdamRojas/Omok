@@ -42,7 +42,7 @@ public abstract class Player {
         return name;
     }
     public String getSymbol() {
-        return symbol;
+        return this.symbol;
     }
     @Override
     public String toString(){

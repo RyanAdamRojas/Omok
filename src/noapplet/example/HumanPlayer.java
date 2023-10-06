@@ -15,6 +15,7 @@ public class HumanPlayer extends Player {
         System.out.println(this.getName() + ". Please input x and y.");
         int x = read.nextInt();
         int y = read.nextInt();
-        return board.validateMove(this, x, y); // Returns String
+        return board.validateMove(this.getSymbol(), x, y); // Returns String
     }
+
 }
