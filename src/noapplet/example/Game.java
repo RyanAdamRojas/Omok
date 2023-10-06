@@ -43,13 +43,6 @@ public class Game {
         else player2 = new ComputerPlayer( "○");
     }
 
-    /*
-    Optional.
-    public void setCheatsActive(boolean cheatsActive) {
-        this.cheatsActive = cheatsActive;
-    }
-    */
-
     // Boilerplate Below: Setter and Getters
     public Player getPlayer2() {
         return player2;
