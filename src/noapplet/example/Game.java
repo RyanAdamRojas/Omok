@@ -8,14 +8,12 @@ public class Game {
     private Player player1;
     private Player player2;
     private Player currentPlayer;
-    private String mode;
-    private boolean cheatsActive; // not used
+   // private boolean cheatsActive; // not used
 
-    Game(String newMode, int boardSize) {
+    public Game(String newMode, int boardSize) {
         this.board = new Board(boardSize);
-        this.setMode(newMode); // "P" or "C". Defaults to "C".
 
-        // Starting player is randomized
+        // Design Decision: Starting player is randomized for max fun
         Random coinToss = new Random();
         if(coinToss.nextBoolean()) currentPlayer = player1;
         else currentPlayer = player2;
@@ -37,27 +35,20 @@ public class Game {
 
     public void setPlayer1(String name, boolean isHuman) {
         if (isHuman) player1 = new HumanPlayer(name, "●");
-        else player1 = new ComputerPlayer( "X" /*GUI.whiteStone*/);
+        else player1 = new ComputerPlayer("●");
     }
 
     public void setPlayer2(String name, boolean isHuman) {
         if (isHuman) player2 = new HumanPlayer(name,  "○");
-        else player2 = new ComputerPlayer( "X" /*GUI.blackStone*/);
+        else player2 = new ComputerPlayer( "○");
     }
 
-    public void setMode(String newMode){
-        // Exception Handling: Game will default to Player vs Computer
-        if(newMode.equals("P")) this.mode = "P";
-        else if (newMode.equals("C")) this.mode = "C";
-        else {
-            mode = "C";
-            System.out.println("Gamemode defaulted to Player vs Computer");
-        }
-    }
-
+    /*
+    Optional.
     public void setCheatsActive(boolean cheatsActive) {
         this.cheatsActive = cheatsActive;
     }
+    */
 
     // Boilerplate Below: Setter and Getters
     public Player getPlayer2() {
@@ -65,8 +56,5 @@ public class Game {
     }
     public Player getPlayer1() {
         return player1;
-    }
-    public String getMode(){
-        return mode;
     }
 }

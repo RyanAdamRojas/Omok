@@ -16,8 +16,8 @@ public abstract class Player {
         this.symbol = symbol;
     }
 
-    public String requestMove(Board board, int x, int y){
-        return board.validateMove(this, x, y);
+    public abstract String requestMove(Board board);
+
 //        USE THIS IN MAIN:
 //        String result = player.requestMove(board, 5, 15);
 //        switch(result){
@@ -30,7 +30,6 @@ public abstract class Player {
 //            case "STONE_PLACED":
 //            case "NOT_AVAILABLE":
 //        }
-    }
 
     // Boilerplate Below: Setters and Getters
     public void setName(String name) {

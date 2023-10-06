@@ -38,6 +38,8 @@ public class Board {
     }
 
     private boolean isCellAvailable(int x, int y){
+        // If coordinates are out of bounds
+        if ((x*y) > maxStoneCount) return false;
         // -1 for coordinate to array index offset
         if (cells[x-1][y-1] == null) return true;
         else return false;
@@ -96,5 +98,10 @@ public class Board {
     private boolean streakColumns(String symbol){
         // TODO
         return false;
+    }
+
+    // Boiler Plate Below: Setters and Getters
+    public int getSize() {
+        return size;
     }
 }
