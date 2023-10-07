@@ -3,8 +3,7 @@ package noapplet.example;
 import java.util.Random;
 import java.util.Scanner;
 
-public class P
-        ConsoleUI {
+public class ConsoleUI {
     private Player player1, player2, currentPlayer;
     private Board board;
     public ConsoleUI(){

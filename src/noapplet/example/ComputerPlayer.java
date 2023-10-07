@@ -12,12 +12,12 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    private String makeSmartMove(Player player, Board board){
+    public String requestMove(Board board){
         // FIXME Makes random move, not a smart move.
         Random random = new Random();
         int x = random.nextInt(board.getSize());
         int y = random.nextInt(board.getSize());
-        String validationMessage = board.validateMove(this, x, y);
+        String validationMessage = board.validateMove(this.symbol, x, y);
 //        Possible validation Messages
 //        "GAME_DRAW":
 //        "PLAYER_WIN"
@@ -26,7 +26,7 @@ public class ComputerPlayer extends Player {
         while (validationMessage.equals("NOT_AVAILABLE")) {
             x = random.nextInt(board.getSize());              // Gets new x
             y = random.nextInt(board.getSize());              // Gets new y
-            validationMessage = board.validateMove(this, x, y);  // Tries new x and y
+            validationMessage = board.validateMove(this.symbol, x, y);  // Tries new x and y
         }
         return validationMessage; // Stone placed
     }
