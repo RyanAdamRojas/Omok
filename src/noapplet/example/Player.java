@@ -15,12 +15,16 @@ public abstract class Player {
 
     public abstract String requestMove(Board board);
 
-    //Getters
+    //Getters & Setter
     public String getName() {
         return name;
     }
     public String getSymbol() {
         return this.symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     @Override

@@ -39,8 +39,8 @@ public class Board {
 
     private boolean isCellAvailable(int x, int y){
         // Adjust for 1-based indexing (if needed)
-        x--; // Assuming x and y are 1-based
-        y--;
+        //x--; // Assuming x and y are 1-based
+        //y--;
 
         // Check if coordinates are within the valid bounds
         if (x >= 0 && x < cells.length && y >= 0 && y < cells[0].length) {
@@ -60,7 +60,7 @@ public class Board {
 
     private void placeStone(int x, int y, String symbol) {
         // -1 for coordinate to array index offset
-        this.cells[y-1][x-1] = symbol;
+        this.cells[y][x] = symbol;//I removed y-1 and x-1
         this.activeStoneCount++;
         if (activeStoneCount == maxStoneCount) isFull = true;
     }
@@ -172,5 +172,8 @@ public class Board {
     // Boiler Plate Below: Setters and Getters
     public int getSize() {
         return size;
+    }
+    public String[][] getCells(){
+        return cells;
     }
 }

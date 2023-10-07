@@ -17,11 +17,11 @@ public class ConsoleUI {
         //Creates Omok game
         board = new Board(size);
         //Sets Player 1
-        player1 = new HumanPlayer("Player1", "0");
+        player1 = new HumanPlayer("Player1", "●");
         //Sets Player 2 depending on user input
         if (choice.equals("P")) {
             System.out.println("STARTING PLAYER VS PLAYER OMOK GAME ---------------------------------------");
-            player2 = new HumanPlayer("Player2", "X");
+            player2 = new HumanPlayer("Player2", "■");
         }
         else{
             System.out.println("STARTING PLAYER VS COMPUTER OMOK GAME ---------------------------------------");
@@ -36,19 +36,24 @@ public class ConsoleUI {
             String result = currentPlayer.requestMove(board);
             switch(result){
                 case "PLAYER_WIN":
+                    currentPlayer.setSymbol("★");
+                    displayBoard.drawStone(player1.getSymbol(), player2.getSymbol(), board);//needs parameters //needs to be fixed
                     System.out.println(currentPlayer.getName() + " WINS!");
-                    return;
+                    return; //Game ends
                 case "BOARD_FULL":
                     System.out.println("DRAW!");
-                    return;
+                    return;//Game ends
                 case "STONE_PLACED":
-                    //displayBoard.drawStone();//needs parameters //needs to be fixed
+                    displayBoard.drawStone(player1.getSymbol(), player2.getSymbol(), board);//needs parameters //needs to be fixed
                     System.out.println("STONE PLACED FOR " + currentPlayer.getName());
                     swapCurrentPlayer();
-                    break;
-                case "CELL_UNAVALIABLE":
+                    break; //next player's turn
+                case "CELL_UNAVAILABLE":
                     System.out.println("INVALID. TRY AGAIN");
-                    break;
+                    break;//turn repeats
+                case "EXIT":
+                    System.out.println("GAME EXITING...");
+                    return;//End game
             }
 
         }

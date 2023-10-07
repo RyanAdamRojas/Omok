@@ -5,6 +5,7 @@ public class GUI {
     private String[][] displayBoard;
     //Default Constructor
     public GUI(){
+        //Default constructor
         width = 15;
         height = 15;
         displayBoard = new String[(2 * height)+4][width + 3];
@@ -83,11 +84,30 @@ public class GUI {
             System.out.println(); // Move to the next row
         }
     }
-    public void drawStone(int x, int y, String symbol){
+    public void drawStone(String player1Symbol, String player2Symbol, Board board){
+        String[][] cells = board.getCells();
+        int rowIndex = 3;//Starts at index 3
+        for(int row = 0; row < cells.length; row++){
+            for(int col = 0; col < cells[row].length; col++){
+                String currentCell = cells[row][col];
+                if(currentCell != null && currentCell.equals(player1Symbol)){
+                    int displayRow = rowIndex;
+                    int displayCol = col + 2;
+                    displayBoard[displayRow][displayCol] = player1Symbol + "---";
+                }
+                if(currentCell != null && currentCell.equals(player2Symbol)){
+                    int displayRow = rowIndex;
+                    int displayCol = col + 2;
+                    displayBoard[displayRow][displayCol] = player2Symbol + "---";
+                }
+            }
+            rowIndex += 2; //Needs to skip a row
+        }
         //The following will update the board with the new stone
+        /*
         int xIndex = x + 1;//Column
         int yIndex = y + 3;//Row
-        displayBoard[yIndex][xIndex] = symbol + "---";
+        displayBoard[yIndex][xIndex] = symbol + "---";*/
     }
     public void print(){
         //This method helped me debug I will remove at the end :)
@@ -107,6 +127,7 @@ public class GUI {
         }
         System.out.println("\n}");
     }
+    /*
     public static void main(String[] args) {
         //The following is used to test the class, I will remove at the end
         GUI test = new GUI(15);
@@ -115,5 +136,5 @@ public class GUI {
         test.drawStone(1,2, "●");
         test.drawStone(3,2, "○");
         test.drawBoard();
-    }
+    }*/
 }
