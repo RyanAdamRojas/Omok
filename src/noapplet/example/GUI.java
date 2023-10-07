@@ -3,7 +3,7 @@ package noapplet.example;
 public class GUI {
     private int width, height;
     private String[][] displayBoard;
-    //Default Constructor
+
     public GUI(){
         //Default constructor
         width = 15;
@@ -33,7 +33,7 @@ public class GUI {
         displayBoard[0][0] = "  ";
         displayBoard[0][1] = "    ";
         displayBoard[1][0] = "  ";
-        int num = 0;
+        int num = 1;
         for(int i = 2; i < width + 2; i++){
             displayBoard[0][i] = String.valueOf(num) + "  ";
             num++;
@@ -42,7 +42,7 @@ public class GUI {
             }
         }
         displayBoard[0][width+2] = " ";
-        num = 0;
+        num = 1;
         for(int i =  2; i < (2 * height) + 2; i++){
             if(i % 2 != 0){
                 displayBoard[i][0] = String.valueOf(num);
@@ -87,15 +87,18 @@ public class GUI {
     public void drawStone(String player1Symbol, String player2Symbol, Board board){
         String[][] cells = board.getCells();
         int rowIndex = 3;//Starts at index 3
-        for(int row = 0; row < cells.length; row++){
+
+        for(int row = 0; row < cells.length; row++){//Adds player1's stones
             for(int col = 0; col < cells[row].length; col++){
                 String currentCell = cells[row][col];
+
                 if(currentCell != null && currentCell.equals(player1Symbol)){
                     int displayRow = rowIndex;
                     int displayCol = col + 2;
                     displayBoard[displayRow][displayCol] = player1Symbol + "---";
                 }
-                if(currentCell != null && currentCell.equals(player2Symbol)){
+
+                if(currentCell != null && currentCell.equals(player2Symbol)){//Adds player2's stones
                     int displayRow = rowIndex;
                     int displayCol = col + 2;
                     displayBoard[displayRow][displayCol] = player2Symbol + "---";
@@ -103,38 +106,6 @@ public class GUI {
             }
             rowIndex += 2; //Needs to skip a row
         }
-        //The following will update the board with the new stone
-        /*
-        int xIndex = x + 1;//Column
-        int yIndex = y + 3;//Row
-        displayBoard[yIndex][xIndex] = symbol + "---";*/
+
     }
-    public void print(){
-        //This method helped me debug I will remove at the end :)
-        System.out.println("{");
-        for (int i = 0; i < displayBoard.length; i++) {
-            System.out.print("{");
-            for (int j = 0; j < displayBoard[i].length; j++) {
-                System.out.print(displayBoard[i][j]);
-                if (j < displayBoard[i].length - 1) {
-                    System.out.print(", ");
-                }
-            }
-            System.out.print("}");
-            if (i < displayBoard.length - 1) {
-                System.out.println(",");
-            }
-        }
-        System.out.println("\n}");
-    }
-    /*
-    public static void main(String[] args) {
-        //The following is used to test the class, I will remove at the end
-        GUI test = new GUI(15);
-        test.createBoard();
-        test.drawBoard();
-        test.drawStone(1,2, "●");
-        test.drawStone(3,2, "○");
-        test.drawBoard();
-    }*/
 }

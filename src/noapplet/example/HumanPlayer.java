@@ -18,15 +18,15 @@ public class HumanPlayer extends Player {
 
         while (true) {
             System.out.println(this.getName() + " INPUT X AND Y VALUES SEPARATED BY A SPACE OR ENTER [STOP] TO EXIT GAME. EX: 2 5");
-            coordinate = read.nextLine();
-            if (coordinate.equals("STOP")){
+            coordinate = read.nextLine();//Takes in user input
+            if (coordinate.equals("STOP")){//To quit the game
                 return "EXIT";
             }
 
             String[] parts = coordinate.split(" ");
 
-            if (parts.length != 2) {
-                System.out.println("INVALID INPUT. PLACE SPACES.");
+            if (parts.length != 2) {//Checks if input has only 2 integers
+                System.out.println("INVALID INPUT");
                 continue; // Continue the loop to prompt for input again
             }
 
@@ -34,20 +34,12 @@ public class HumanPlayer extends Player {
                 int x = Integer.parseInt(parts[0]);
                 int y = Integer.parseInt(parts[1]);
 
-                return board.validateMove(this.getSymbol(), x, y);
+                return board.validateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
             }
             catch (NumberFormatException e) {
                 System.out.println("INVALID. ENTER NUMERICAL VALUES.");
             }
         }
-
-        /*
-        Scanner read = new Scanner(System.in);
-        System.out.println(this.getName() + " INPUT X AND Y VALUES SEPERATED BY A SPACE. EX: 2 5");
-        String coordinate = read.nextLine();
-        int x = valueOf(coordinate.substring(0));//Takes the first number
-        int y = valueOf(coordinate.substring(-1));//Takes the last number
-        return board.validateMove(this.getSymbol(), x, y); // Returns String*/
     }
 
 }

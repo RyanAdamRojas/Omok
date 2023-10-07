@@ -30,14 +30,16 @@ public class ConsoleUI {
         GUI displayBoard = new GUI(size); //Creates display board
         displayBoard.createBoard();
         setCurrentPlayer();
-        //The game will start and continue while ...
+        //The game will start and continue unless there is a winner, draw, or the user wishes to exit
         while(true){
-            displayBoard.drawBoard();
-            String result = currentPlayer.requestMove(board);
-            switch(result){
+            displayBoard.drawBoard(); //Will print board
+            String result = currentPlayer.requestMove(board);//Asks for the current players move
+
+            switch(result){//The following is some conditions that might happen
                 case "PLAYER_WIN":
                     currentPlayer.setSymbol("★");
                     displayBoard.drawStone(player1.getSymbol(), player2.getSymbol(), board);//needs parameters //needs to be fixed
+                    displayBoard.drawBoard(); //Will print board
                     System.out.println(currentPlayer.getName() + " WINS!");
                     return; //Game ends
                 case "BOARD_FULL":
@@ -59,6 +61,7 @@ public class ConsoleUI {
         }
     }
     public void setCurrentPlayer(){
+        //Randomly selects the first player
         Random coinToss = new Random();
         if(coinToss.nextBoolean()) currentPlayer = player1;
         else currentPlayer = player2;
