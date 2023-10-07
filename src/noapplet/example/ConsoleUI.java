@@ -37,7 +37,8 @@ public class ConsoleUI {
 
             switch(result){//The following is some conditions that might happen
                 case "PLAYER_WIN":
-                    currentPlayer.setSymbol("★");
+                    player1.setSymbol("★");
+                    player2.setSymbol("★");
                     displayBoard.drawStone(player1.getSymbol(), player2.getSymbol(), board);//needs parameters //needs to be fixed
                     displayBoard.drawBoard(); //Will print board
                     System.out.println(currentPlayer.getName() + " WINS!");

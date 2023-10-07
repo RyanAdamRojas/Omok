@@ -30,7 +30,10 @@ public class Board {
     public String validateMove(String playerSymbol, int x, int y) {
         if (isCellAvailable(x, y)){
             placeStone(x, y, playerSymbol);
-            if (didWin(playerSymbol)) return "PLAYER_WIN";
+            if (didWin(playerSymbol)) {
+                placeStone(x, y, "★");
+                return "PLAYER_WIN";
+            }
             else if (isFull) return "BOARD_FULL";
             else return "STONE_PLACED";
         }
