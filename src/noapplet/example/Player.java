@@ -2,14 +2,11 @@
 
 package noapplet.example;
 
+import java.util.Objects;
+
 public abstract class Player {
     private String name;
     private String symbol;
-
-    Player(){
-        this.name = "Name not set";
-        this.symbol = "Symbol not set";
-    }
 
     Player(String name, String symbol){
         this.name = name;
@@ -18,34 +15,25 @@ public abstract class Player {
 
     public abstract String requestMove(Board board);
 
-//        USE THIS IN MAIN:
-//        String result = player.requestMove(board, 5, 15);
-//        switch(result){
-//            case "GAME_DRAW":
-//                  print(Game over);
-//                  return to main menu;
-//            case "PLAYER_WIN":
-//                    print(Game over);
-//                    return to main menu;
-//            case "STONE_PLACED":
-//            case "NOT_AVAILABLE":
-//        }
-
-    // Boilerplate Below: Setters and Getters
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
+    //Getters
     public String getName() {
         return name;
     }
     public String getSymbol() {
         return this.symbol;
     }
+
     @Override
-    public String toString(){
-        return "Player: " + this.getName() + " as " + this.getSymbol();
+    public boolean equals(Object other) {
+        //Intellij automatically creates an override for equals
+        if (this == other) return true;
+        if (!(other instanceof Player player)) return false;
+        return Objects.equals(getName(), player.getName()) && Objects.equals(getSymbol(), player.getSymbol());
+    }
+
+    @Override
+    public int hashCode() {
+        //Intellij automatically creates an override for hashCode
+        return Objects.hash(getName(), getSymbol());
     }
 }

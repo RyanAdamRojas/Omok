@@ -2,12 +2,12 @@ package noapplet.example;
 
 public class GUI {
     private int width, height;
-    private String[][] board;
+    private String[][] displayBoard;
     //Default Constructor
     public GUI(){
         width = 15;
         height = 15;
-        board = new String[(2 * height)+4][width + 3];
+        displayBoard = new String[(2 * height)+4][width + 3];
     }
     public GUI(int size){
         //Checks if the given size is 15 or greater than
@@ -15,13 +15,13 @@ public class GUI {
         if(size >= 15) {
             this.width = size;
             this.height = size;
-            this.board = new String[(2 * height)+4][width + 3];
+            this.displayBoard = new String[(2 * height)+4][width + 3];
         }
         //If not then sets the board to 15
         else{
             this.width = 15;
             this.height = 15;
-            this.board = new String[(2 * height)+4][width + 3];
+            this.displayBoard = new String[(2 * height)+4][width + 3];
         }
     }
 
@@ -29,47 +29,47 @@ public class GUI {
     public void createBoard() {
         System.out.println("GAME BOARD:");
         //Creates numbers on the side for user
-        board[0][0] = "  ";
-        board[0][1] = "    ";
-        board[1][0] = "  ";
-        int num = 1;
+        displayBoard[0][0] = "  ";
+        displayBoard[0][1] = "    ";
+        displayBoard[1][0] = "  ";
+        int num = 0;
         for(int i = 2; i < width + 2; i++){
-            board[0][i] = String.valueOf(num) + "  ";
+            displayBoard[0][i] = String.valueOf(num) + "  ";
             num++;
             if (num < 10){
-                board[0][i] += " ";
+                displayBoard[0][i] += " ";
             }
         }
-        board[0][width+2] = " ";
-        num = 1;
+        displayBoard[0][width+2] = " ";
+        num = 0;
         for(int i =  2; i < (2 * height) + 2; i++){
             if(i % 2 != 0){
-                board[i][0] = String.valueOf(num);
+                displayBoard[i][0] = String.valueOf(num);
                 if(num < 10){
-                    board[i][0] += " ";
+                    displayBoard[i][0] += " ";
                 }
                 num++;
             }
             else{
-                board[i][0] = "  ";
+                displayBoard[i][0] = "  ";
             }
         }
-        board[(2*height) + 2][0] = "  ";
-        board[(2*height) + 3][0] = "  ";
+        displayBoard[(2*height) + 2][0] = "  ";
+        displayBoard[(2*height) + 3][0] = "  ";
 
         //Creates table/board
         for (int i = 1; i < (2 * height)+4; i++) {
             for (int j = 1; j < width + 3; j++) {
                 if(i % 2 != 0){
                     if (j == height+2){
-                        board[i][j] = "+";
+                        displayBoard[i][j] = "+";
                     }
                     else {
-                        board[i][j] = "+---";
+                        displayBoard[i][j] = "+---";
                     }
                 }
                 else{
-                    board[i][j] = "|   ";
+                    displayBoard[i][j] = "|   ";
                 }
             }
         }
@@ -78,32 +78,30 @@ public class GUI {
         //The following method will print the board
         for (int i = 0; i < (2*height)+4; i++) {
             for (int j = 0; j < width+3; j++) {
-                System.out.print(board[i][j] + " ");
+                System.out.print(displayBoard[i][j] + " ");
             }
             System.out.println(); // Move to the next row
         }
     }
     public void drawStone(int x, int y, String symbol){
         //The following will update the board with the new stone
-        int xIndex = x + 1;
-        int yIndex = y + 3;
-        String replace = board[yIndex][xIndex].substring(0);
-        replace = symbol;
-        board[yIndex][xIndex] = replace + "---";
+        int xIndex = x + 1;//Column
+        int yIndex = y + 3;//Row
+        displayBoard[yIndex][xIndex] = symbol + "---";
     }
     public void print(){
-        //This method helped me debugg I will remove at the end :)
+        //This method helped me debug I will remove at the end :)
         System.out.println("{");
-        for (int i = 0; i < board.length; i++) {
+        for (int i = 0; i < displayBoard.length; i++) {
             System.out.print("{");
-            for (int j = 0; j < board[i].length; j++) {
-                System.out.print(board[i][j]);
-                if (j < board[i].length - 1) {
+            for (int j = 0; j < displayBoard[i].length; j++) {
+                System.out.print(displayBoard[i][j]);
+                if (j < displayBoard[i].length - 1) {
                     System.out.print(", ");
                 }
             }
             System.out.print("}");
-            if (i < board.length - 1) {
+            if (i < displayBoard.length - 1) {
                 System.out.println(",");
             }
         }
@@ -114,8 +112,8 @@ public class GUI {
         GUI test = new GUI(15);
         test.createBoard();
         test.drawBoard();
-        test.drawStone(1,2, "X");
-        test.drawStone(3,2, "0");
+        test.drawStone(1,2, "●");
+        test.drawStone(3,2, "○");
         test.drawBoard();
     }
 }

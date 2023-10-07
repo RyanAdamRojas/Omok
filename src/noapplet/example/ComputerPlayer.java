@@ -18,17 +18,15 @@ public class ComputerPlayer extends Player {
             "Macintosh",
             "Windows"
     };
-
-    ComputerPlayer(){
+    public ComputerPlayer(String name, String symbol) {
+        super(name, symbol);
+        /*
         Random random = new Random();
-        this.name = names[random.nextInt(10)];
-        this.symbol = "Symbol not set";
-    }
-    ComputerPlayer(String symbol) {
+        super(name = names[random.nextInt(10)], symbol);
         // Design choice: Name is automatically set
         Random random = new Random();
         this.name = names[random.nextInt(10)];
-        this.symbol = symbol;
+        this.symbol = symbol;*/
     }
 
     @Override
@@ -41,7 +39,7 @@ public class ComputerPlayer extends Player {
         Random random = new Random();
         int x = random.nextInt(board.getSize());
         int y = random.nextInt(board.getSize());
-        String validationMessage = board.validateMove(this, x, y);
+        String validationMessage = board.validateMove(this.symbol, x, y);
 //        Possible validation Messages
 //        "GAME_DRAW":
 //        "PLAYER_WIN"
@@ -50,7 +48,7 @@ public class ComputerPlayer extends Player {
         while (validationMessage.equals("NOT_AVAILABLE")) {
             x = random.nextInt(board.getSize());              // Gets new x
             y = random.nextInt(board.getSize());              // Gets new y
-            validationMessage = board.validateMove(this, x, y);  // Tries new x and y
+            validationMessage = board.validateMove(this.symbol, x, y);  // Tries new x and y
         }
         return validationMessage; // Stone placed
     }

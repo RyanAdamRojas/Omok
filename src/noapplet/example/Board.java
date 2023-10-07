@@ -38,10 +38,24 @@ public class Board {
     }
 
     private boolean isCellAvailable(int x, int y){
+        // Adjust for 1-based indexing (if needed)
+        x--; // Assuming x and y are 1-based
+        y--;
+
+        // Check if coordinates are within the valid bounds
+        if (x >= 0 && x < cells.length && y >= 0 && y < cells[0].length) {
+            // Check if the cell is null (available)
+            return cells[y][x] == null;
+        }
+        else {
+            // Coordinates are out of bounds
+            return false;
+        }
+        /*
         // If coordinates are out of bounds
         if ((x*y) > maxStoneCount) return false;
         // -1 for coordinate to array index offset, [col][row]
-        return cells[y - 1][x - 1] == null;
+        return cells[y - 1][x - 1] == null;*/
     }
 
     private void placeStone(int x, int y, String symbol) {
@@ -66,7 +80,7 @@ public class Board {
                 for (int k = 0; k < 5; k++) {  // Winning streak is k = 5
                     if (col + k < this.size && row + k < this.size) { // Stay within bounds
                         String currentCell = cells[col + k][row + k];
-                        if (currentCell.equals(symbol)) {
+                        if (currentCell != null && currentCell.equals(symbol)) {
                             count++;
                             if (count == 5)
                                 return true; // Found 5 in a row!!!
@@ -90,9 +104,9 @@ public class Board {
 
                 // Check for winning streak in diagonal left and downward from current cell
                 for (int k = 0; k < 5; k++) {  // Winning streak is k = 5
-                    if (col - k <= 0 && row - k <= 0) { // Stay within bounds
+                    if (col - k >= 0 && row - k >= 0) { // Stay within bounds
                         String currentCell = cells[col - k][row - k];
-                        if (currentCell.equals(symbol)) {
+                        if (currentCell != null && currentCell.equals(symbol)) {
                             count++;
                             if (count == 5)
                                 return true; // Found 5 in a row!!!
@@ -117,7 +131,7 @@ public class Board {
                 for (int k = 0; k < 5; k++) {  // Winning streak is k = 5
                     if (row + k < size) { // Stay within bounds in row
                         String currentCell = cells[col][row + k]; // From column, checks down the row
-                        if (currentCell.equals(symbol)) {
+                        if (currentCell != null && currentCell.equals(symbol)) {
                             count++;
                             if (count == 5) return true; // Found 5 in a row!!!
                         }
@@ -141,7 +155,7 @@ public class Board {
                 for (int k = 0; k < 5; k++) {  // Winning streak is k = 5
                     if (col + k < size) { // Stay within bounds in column
                         String currentCell = cells[col + k][row]; // From row, checks down the column
-                        if (currentCell.equals(symbol)) {
+                        if (currentCell != null && currentCell.equals(symbol)) {
                             count++;
                             if (count == 5) return true; // Found 5 in a row!!!
                         }
