@@ -12,28 +12,48 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    public String requestMove(Board board){
-        // Check horizontally, vertically, and diagonally
-        String horizontalMove = findWinningMoveHorizontally(board, getSymbol());
-        String verticalMove = findWinningMoveVertically(board, getSymbol());
-        String diagonalMove = findWinningMoveDiagonal1(board, getSymbol());
-        String result;
-        // Prioritize winning moves, then blocking opponent, then any other move logic
-        if (horizontalMove != null) {
-            result = horizontalMove;
-        } else if (verticalMove != null) {
-            result = verticalMove;
-        } else if (diagonalMove != null) {
-            result = diagonalMove;
-        } else {
-            // If no winning or blocking move is found choose a random empty cell
-            return findRandomEmptyCell(board);
+    private String makeSmartMove(Player player, Board board){
+        // FIXME Makes random move, not a smart move.
+        Random random = new Random();
+        int x = random.nextInt(board.getSize());
+        int y = random.nextInt(board.getSize());
+        String validationMessage = board.validateMove(this, x, y);
+//        Possible validation Messages
+//        "GAME_DRAW":
+//        "PLAYER_WIN"
+//        "STONE_PLACED":
+//        "NOT_AVAILABLE":
+        while (validationMessage.equals("NOT_AVAILABLE")) {
+            x = random.nextInt(board.getSize());              // Gets new x
+            y = random.nextInt(board.getSize());              // Gets new y
+            validationMessage = board.validateMove(this, x, y);  // Tries new x and y
         }
-        String[] parts = result.split(" ");
-        int x = Integer.parseInt(parts[0]);
-        int y = Integer.parseInt(parts[1]);
-        return board.validateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
+        return validationMessage; // Stone placed
     }
+
+//    public String requestMove(Board board){
+//        // Check horizontally, vertically, and diagonally
+//        String horizontalMove = findWinningMoveHorizontally(board, getSymbol());
+//        String verticalMove = findWinningMoveVertically(board, getSymbol());
+//        String diagonalMove = findWinningMoveDiagonal1(board, getSymbol());
+//        String result;
+//        // Prioritize winning moves, then blocking opponent, then any other move logic
+//        if (horizontalMove != null) {
+//            result = horizontalMove;
+//        } else if (verticalMove != null) {
+//            result = verticalMove;
+//        } else if (diagonalMove != null) {
+//            result = diagonalMove;
+//        } else {
+//            // If no winning or blocking move is found choose a random empty cell
+//            return findRandomEmptyCell(board);
+//        }
+//        String[] parts = result.split(" ");
+//        int x = Integer.parseInt(parts[0]);
+//        int y = Integer.parseInt(parts[1]);
+//
+//        return board.validateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
+//    }
 
     private String findRandomEmptyCell(Board board) {
         Random random = new Random();
