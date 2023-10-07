@@ -10,7 +10,7 @@ public class ConsoleUI {
         Scanner scan = new Scanner(System.in);
         //Basic output to retrieve user's input
         System.out.println("WELCOME TO OMOK!");
-        System.out.println("PLEASE SELECT A GAME MODE [P] FOR PLAYER VS PLAYER AND [C] FOR PLAYER VS COMPUTER. UNVALID KEY WILL BE DEFAULT TO PLAYER VS COMPUTER:");
+        System.out.println("PLEASE SELECT A GAME MODE [P] FOR PLAYER VS PLAYER AND [C] FOR PLAYER VS COMPUTER. INVALID KEY WILL BE DEFAULT TO PLAYER VS COMPUTER:");
         String choice = scan.nextLine();
         System.out.println("ENTER BOARD SIZE.  MUST BE 15 OR GREATER. IF NOT THE DEFAULT WILL BE SET TO 15:");
         int size = scan.nextInt();

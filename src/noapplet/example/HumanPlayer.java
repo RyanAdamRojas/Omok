@@ -17,7 +17,7 @@ public class HumanPlayer extends Player {
         String coordinate;
 
         while (true) {
-            System.out.println(this.getName() + " INPUT X AND Y VALUES SEPARATED BY A SPACE OR ENTER [STOP] TO EXIT GAME. EX: 2 5");
+            System.out.println(this.getSymbol()+ "     "+ this.getName() + " INPUT X AND Y VALUES SEPARATED BY A SPACE OR ENTER [STOP] TO EXIT GAME. EX: 2 5");
             coordinate = read.nextLine();//Takes in user input
             if (coordinate.equals("STOP")){//To quit the game
                 return "EXIT";

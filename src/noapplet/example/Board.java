@@ -31,7 +31,7 @@ public class Board {
         if (isCellAvailable(x, y)){
             placeStone(x, y, playerSymbol);
             if (didWin(playerSymbol)) {
-                placeStone(x, y, "★");
+                placeStone(x, y, "★");//Sets winning stone
                 return "PLAYER_WIN";
             }
             else if (isFull) return "BOARD_FULL";
