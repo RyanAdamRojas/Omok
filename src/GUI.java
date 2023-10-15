@@ -1,5 +1,3 @@
-package noapplet.example;
-
 public class GUI {
     private int width, height;
     private String[][] displayBoard;

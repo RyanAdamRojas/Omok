@@ -1,5 +1,4 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
-package noapplet.example;
 
 public class Board {
     private String[][] cells; // [col][row]

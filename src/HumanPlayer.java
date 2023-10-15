@@ -1,7 +1,5 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
 
-package noapplet.example;
-
 import java.util.Scanner;
 
 import static java.lang.Integer.valueOf;

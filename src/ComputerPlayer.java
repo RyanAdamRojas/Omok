@@ -1,6 +1,5 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
 
-package noapplet.example;
 import java.util.Random;
 
 public class ComputerPlayer extends Player {
