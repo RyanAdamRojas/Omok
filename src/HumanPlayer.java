@@ -2,13 +2,12 @@
 
 import java.util.Scanner;
 
-import static java.lang.Integer.valueOf;
-
 public class HumanPlayer extends Player {
 
     HumanPlayer(String name, String symbol) {
         super(name, symbol);
     }
+
     @Override
     public String requestMove(Board board){
         Scanner read = new Scanner(System.in);

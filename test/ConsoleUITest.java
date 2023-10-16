@@ -1,50 +1,56 @@
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.Assert.assertEquals;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.*;
+import java.io.*;
+import static org.junit.Assert.*;
+
 
 public class ConsoleUITest {
-    private ConsoleUI testConsole;
-
+    // FIXME
+    private ConsoleUI ui;
+    private InputStream inputStream;
+    private OutputStream outputStream;
+    ByteArrayOutputStream resultStream;
 
     @BeforeEach
-    void setUp(){
-        testConsole = new ConsoleUI();
-        /*
-        testConsole.printMessage(message)
-        int notSure = testConsole.promptMode()
-        testConsole.printBoard()
-        int notSure2 testConsole.promptMove()
-        */
+    void setUp() throws IOException {
+        ui = new ConsoleUI();
+        InputStream in;
+        OutputStream out;
+        ui.printMessage("This is my message!");
+        int notSure = ui.promptMode();
+        ui.printBoard();
+        int notSure2 = ui.promptMove(ui.getCurrentPlayer());
+
     }
 
     @AfterEach
     void tearDown(){
-        testConsole = null;
+        ui = null;
     }
 
     @Test
-    void playGame(){
+    void playGame() throws IOException {
         // TODO
-        // Author Prof Cheon
-        // converting a string to an InputStream
-        String testInput = "7 8\n";
-        InputStream in = new ByteArrayInputStream(testInput.getBytes());
+        // Converting a string to an InputStream
+        // String testInput = "7 8\n";
+        String testInput =
+                """
+                C
+                15
+                1 1
+                1 2
+                1 3
+                1 4
+                1 5
+                """;
 
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(result, true); // true for auto flushing
-
-        ConsoleUI ui = new ConsoleUI(in, out);
-        //ui.printMessage("Welcome to Omok!"); // print to result
+        inputStream = new ByteArrayInputStream(testInput.getBytes());
+        resultStream = new ByteArrayOutputStream();
+        outputStream = new PrintStream(resultStream, true); // true for auto flushing
+        ui = new ConsoleUI(inputStream, outputStream);
+        ui.printMessage("I'm printing to the result stream!"); // print to resultStream
 
         // use result.toString() to find out what is printed.
-        int index = ui.promptMove(player); // read the string "7 8\n" from testInput
+        int index = ui.promptMove(ui.getPlayer1()); // read the string "7 8\n" from testInput
     }
 
     @Test

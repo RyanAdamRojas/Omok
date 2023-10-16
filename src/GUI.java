@@ -74,6 +74,7 @@ public class GUI {
         }
     }
     public void drawBoard(){
+
         //The following method will print the board
         for (int i = 0; i < (2*height)+4; i++) {
             for (int j = 0; j < width+3; j++) {
