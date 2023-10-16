@@ -1,10 +1,21 @@
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Random;
 import java.util.Scanner;
 
 public class ConsoleUI {
+    // From Ryan, Sunday evening: Cheon wants us to build a board and then pass it through the ConsolUI constructor
+    //      This would require us to move the "Welcome to Omok!" and game mode selection to the main method.
+    //      Let's skip that for now.
+
     private Player player1, player2, currentPlayer;
     private Board board;
+
     public ConsoleUI(){
+        new ConsoleUI(null, null);
+    }
+    public ConsoleUI(InputStream in, OutputStream out){
         Scanner scan = new Scanner(System.in);
         //Basic output to retrieve user's input
         System.out.println("WELCOME TO OMOK!");
@@ -65,6 +76,25 @@ public class ConsoleUI {
         if(coinToss.nextBoolean()) currentPlayer = player1;
         else currentPlayer = player2;
     }
+
+    public void printMessage(String message){
+        // New TODO
+    }
+
+    public void printBoard(){
+        // New TODO
+    }
+
+    public int promptMode(){
+        // New TODO
+        return -1;
+    }
+
+    public int promptMove(Player p){
+        // New TODO
+        return -1;
+    }
+
     public void swapCurrentPlayer(){
          // Swaps players
         if (currentPlayer.equals(player1))

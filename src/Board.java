@@ -7,6 +7,10 @@ public class Board {
     private int maxStoneCount = 225;
     private boolean isFull = false;
 
+    Board(){
+        new Board(15);
+    }
+
     Board(int size){
         // Design Choice: size is bound 15 - 100
         if (size < 15 || size > 100) size = 15;
