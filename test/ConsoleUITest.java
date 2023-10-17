@@ -1,37 +1,36 @@
 import org.junit.jupiter.api.*;
 import java.io.*;
-import static org.junit.Assert.*;
+import org.junit.Assert.*;
 
 
 public class ConsoleUITest {
-    // FIXME
-    private ConsoleUI ui;
-    private InputStream inputStream;
-    private OutputStream outputStream;
-    ByteArrayOutputStream resultStream;
+    private ConsoleUI testUI;
 
     @BeforeEach
     void setUp() throws IOException {
-        ui = new ConsoleUI();
-        InputStream in;
-        OutputStream out;
-        ui.printMessage("This is my message!");
-        int notSure = ui.promptMode();
-        ui.printBoard();
-        int notSure2 = ui.promptMove(ui.getCurrentPlayer());
+        // TODO?
+        String testInput =
+                """
+                C
+                15
+                """;
 
+        InputStream inputStream = new ByteArrayInputStream(testInput.getBytes());
+        ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
+        OutputStream outputStream = new PrintStream(resultStream, true); // true for auto flushing
+        testUI = new ConsoleUI(inputStream, outputStream);
+        testUI.promptToSetMode();
+        testUI.promptToSetBoard();
     }
 
     @AfterEach
     void tearDown(){
-        ui = null;
+        // TODO?
+        testUI = null;
     }
 
     @Test
-    void playGame() throws IOException {
-        // TODO
-        // Converting a string to an InputStream
-        // String testInput = "7 8\n";
+    void testPlayGame1() throws IOException {
         String testInput =
                 """
                 C
@@ -43,24 +42,36 @@ public class ConsoleUITest {
                 1 5
                 """;
 
-        inputStream = new ByteArrayInputStream(testInput.getBytes());
-        resultStream = new ByteArrayOutputStream();
-        outputStream = new PrintStream(resultStream, true); // true for auto flushing
-        ui = new ConsoleUI(inputStream, outputStream);
-        ui.printMessage("I'm printing to the result stream!"); // print to resultStream
+        // Converting test input into the Input Stream
+        InputStream inputStream = new ByteArrayInputStream(testInput.getBytes());
+        ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
+        OutputStream outputStream = new PrintStream(resultStream, true); // true for auto flushing
 
-        // use result.toString() to find out what is printed.
-        int index = ui.promptMove(ui.getPlayer1()); // read the string "7 8\n" from testInput
+        // Init Game
+        ConsoleUI ui = new ConsoleUI(inputStream, outputStream);
+        ui.promptToSetMode();
+        ui.promptToSetBoard();
+        ui.playGame();
+
+        System.out.println("Results of TestPlay1:\n" + resultStream.toString());
     }
 
     @Test
-    void testConstructor(){
-        // assertEquals( ,ConsoleUI);
+    void testConstructor() {
+        Assertions.assertEquals(15, testUI.getBoard().getSize());
     }
     @Test
-    void testSetCurrentPlayer(){
-        // assert();
+    void testPlayer1Symbol(){
+        Assertions.assertEquals("●", testUI.getPlayer1().getSymbol());
     }
 
+    @Test
+    void tesGetPlayer1(){
+        Assertions.assertEquals(testUI.getPlayer1(), testUI.getPlayer1());
+    }
 
+    @Test
+    void tesGetPlayer2(){
+        Assertions.assertEquals(testUI.getPlayer2(), testUI.getPlayer2());
+    }
 }

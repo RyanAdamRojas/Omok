@@ -1,5 +1,6 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
-
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Scanner;
 
 public class HumanPlayer extends Player {
@@ -9,13 +10,15 @@ public class HumanPlayer extends Player {
     }
 
     @Override
-    public String requestMove(Board board){
-        Scanner read = new Scanner(System.in);
+    public String requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException {
         String coordinate;
 
         while (true) {
-            System.out.println(this.getSymbol()+ "     "+ this.getName() + " INPUT X AND Y VALUES SEPARATED BY A SPACE OR ENTER [STOP] TO EXIT GAME. EX: 2 5");
-            coordinate = read.nextLine();//Takes in user input
+            printStream.write((getSymbol() +
+                    "     " +
+                    getName() +
+                    " INPUT X AND Y VALUES OR ENTER [STOP] TO EXIT GAME. EX: \"2 5\"").getBytes());
+            coordinate = scanner.nextLine();//Takes in user input
             if (coordinate.equals("STOP")){//To quit the game
                 return "EXIT";
             }

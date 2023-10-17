@@ -1,6 +1,9 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Objects;
+import java.util.Scanner;
 
 public abstract class Player {
     private String name;
@@ -11,7 +14,7 @@ public abstract class Player {
         this.symbol = symbol;
     }
 
-    public abstract String requestMove(Board board);//Every abstract class must have at least one abstract method
+    public abstract String requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException;//Every abstract class must have at least one abstract method
 
     //Getters & Setter
     public String getName() {

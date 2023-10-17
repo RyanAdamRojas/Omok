@@ -1,6 +1,8 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
 
+import java.io.PrintStream;
 import java.util.Random;
+import java.util.Scanner;
 
 public class ComputerPlayer extends Player {
     private String name;
@@ -11,7 +13,7 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    public String requestMove(Board board){
+    public String requestMove(Board board, Scanner scanner, PrintStream printStream){
         // FIXME Makes random move, not a smart move.
         Random random = new Random();
         int x = random.nextInt(board.getSize());
