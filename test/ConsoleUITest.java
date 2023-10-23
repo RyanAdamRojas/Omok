@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.*;
 import java.io.*;
-import org.junit.Assert.*;
+import static org.junit.Assert.*;
 
 
 public class ConsoleUITest {
@@ -8,10 +8,12 @@ public class ConsoleUITest {
 
     @BeforeEach
     void setUp() throws IOException {
-        // TODO?
+        // Creates basic input to start a PVC game.
         String testInput =
                 """
-                C
+                PVP
+                Human1
+                Human2
                 15
                 """;
 
@@ -19,26 +21,31 @@ public class ConsoleUITest {
         ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
         OutputStream outputStream = new PrintStream(resultStream, true); // true for auto flushing
         testUI = new ConsoleUI(inputStream, outputStream);
-        testUI.promptToSetMode();
-        testUI.promptToSetBoard();
+        testUI.initConsoleUI();
     }
 
     @AfterEach
     void tearDown(){
-        // TODO?
         testUI = null;
     }
 
     @Test
-    void testPlayGame1() throws IOException {
+    void testPVPGame() throws IOException {
+        // This input should result in Bonnie winning against Clyde
         String testInput =
                 """
-                C
+                PVP
+                Bonnie
+                Clyde
                 15
                 1 1
+                2 2
                 1 2
+                2 3
                 1 3
+                2 4
                 1 4
+                2 6
                 1 5
                 """;
 
@@ -47,22 +54,32 @@ public class ConsoleUITest {
         ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
         OutputStream outputStream = new PrintStream(resultStream, true); // true for auto flushing
 
-        // Init Game
+        // Passing testInput into an instance of a new game which  plays the game
         ConsoleUI ui = new ConsoleUI(inputStream, outputStream);
-        ui.promptToSetMode();
-        ui.promptToSetBoard();
+        ui.initConsoleUI();
         ui.playGame();
-
-        System.out.println("Results of TestPlay1:\n" + resultStream.toString());
     }
 
     @Test
     void testConstructor() {
-        Assertions.assertEquals(15, testUI.getBoard().getSize());
+        // Tests default board size
+        Assertions.assertNotNull(testUI.getCurrentPlayer());
     }
+
     @Test
-    void testPlayer1Symbol(){
-        Assertions.assertEquals("●", testUI.getPlayer1().getSymbol());
+    void testPromptToSetMode() {
+        Assertions.assertEquals("PLAYER_VS_PLAYER",testUI.getGameMode());
+    }
+
+    @Test
+    void testPromptToSetPlayers() {
+        Assertions.assertEquals("Human1", testUI.getPlayer1().getName());
+        Assertions.assertEquals("Human2", testUI.getPlayer2().getName());
+    }
+
+    @Test
+    void testPromptToSetBoard() {
+        Assertions.assertEquals(15, testUI.getBoard().getSize());
     }
 
     @Test
@@ -73,5 +90,10 @@ public class ConsoleUITest {
     @Test
     void tesGetPlayer2(){
         Assertions.assertEquals(testUI.getPlayer2(), testUI.getPlayer2());
+    }
+
+    @Test
+    void testGetCurrentPlayer() {
+        Assertions.assertEquals(testUI.getCurrentPlayer(), testUI.getCurrentPlayer());
     }
 }

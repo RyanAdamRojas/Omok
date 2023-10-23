@@ -6,6 +6,7 @@ public class Board {
     private int activeStoneCount = 0;
     private int maxStoneCount = 225;
     private boolean isFull = false;
+    private String[][] streakCells; // TODO: Will keep track of winning streak
 
     Board(){
         new Board(15);
@@ -30,7 +31,7 @@ public class Board {
         }
     }
 
-    public String validateMove(String playerSymbol, int x, int y) {
+    public String evaluateMove(String playerSymbol, int x, int y) {
         if (isCellAvailable(x, y)){
             placeStone(x, y, playerSymbol);
             if (didWin(playerSymbol)) {

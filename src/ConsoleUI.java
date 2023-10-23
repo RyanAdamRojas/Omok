@@ -3,31 +3,22 @@ import java.io.*;
 import java.util.Random;
 import java.util.Scanner;
 
-// From Ryan, Major Changes:
-// 0. ConsoleUITest requires that an object of type ByteArrayInputStream be used
-//      for testing by passing it into the ConsoleUI constructor. This means that
-//      our code has to be refactored to use a ByteStream for IO. Meaning: If the test
-//      class or a human is playing the game, all input for moves and such are read from
-//      the ByteStream. Think if the ByteStream as the place where real human-user inputs
-//      and the test-class inputs are stored so that it can being read by our methods.
-//      Text me if you have questions.
-// 1. Prof. Cheon wants us to build a board and then pass it through
-//      the ConsoleUI constructor. This would require us to move the
-//      game control flow to the main method. But this can wait.
-// 2. Merge GUI functionality with ConsoleUI, delete GUI.
-// 3. Create the simpler "drawBoard()" method. (Note: Add the drawStones() statement inside
-//      the drawBoard() method.)
-// 4. Fix Computer class stones not being visibly placed when board us drawn
-// 5. Create new Strategy class to be implemented by Player class for cheat mode
-// 6. Move game control flow out of the constructor!
+// TODO:
+// 1. Merge GUI functionality with ConsoleUI, then delete GUI.
+// 2. Create new Strategy class to be implemented by Player class for cheat mode
+// 3. FIXME: After winning, winning streak isnt printed
 
 public class ConsoleUI {
 
     private Player player1, player2, currentPlayer;
     private Board board;
-    private GUI displayBoard; // DELETEME after merging GUI with ConsoleUI
-    private Scanner scanner;            // Can use either type ByteArrayInputStream or System.in
-    private PrintStream printStream;    // Can use either type ByteArrayprintStream or System.out
+    private String gameMode;
+    private final String stoneA = "●"; // May be changed
+    private final String stoneB = "■"; // May be changed
+    private final String starStone = "★"; // May be changed
+    private GUI displayBoard;           // DELETE after merging GUI with ConsoleUI
+    private final Scanner scanner;
+    private final PrintStream printStream;
 
     ConsoleUI() throws IOException {
         //  No args constructor allows real users to play with terminal
@@ -40,65 +31,159 @@ public class ConsoleUI {
         this.printStream = new PrintStream(out);    // Wraps variable out inside a printStream so that it may be printed
     }
 
+    public void initConsoleUI() throws IOException {
+        printStream.write("""
+                       
+                       __   __  __        __        __     \s
+                 /    /    /|  /         /  | /    /  | /  |
+                (    (___ ( | (___      (___|(    (___|(___|
+                |   )|      |     )     |    |   )|   )    )
+                |__/ |__    |  __/      |    |__/ |  /  __/\s
+                                                           \s
+                  __        __                    \s
+                 /  | /|/| /  | /  |  /    /    / \s
+                (   |( / |(   |(___| (    (    (  \s
+                |   )|   )|   )|\\    |    |    |  \s
+                |__/ |  / |__/ | \\   _    _    _ \s
+                
+                """.getBytes());
+        promptToSetMode();
+        promptToSetPlayers();
+        promptToSetBoard();
+    }
+
     public void playGame() throws IOException {
-        // Game logic simply alternates between players (p1, p2, p1, ...) until a player wins, draws, or exits.
+        // Game logic switches between players until there's a wins, draw, or a player exits.
         boolean playing = true;
         while (playing) {
-            displayBoard.drawBoard(); // Will print board
+            printBoard();; // Will print board
             String result = promptToRequestMove();
 
-            switch (result) { //The following game states based on stone placements
+            switch (result) { // Game States are based on the players' stone placement.
                 case "PLAYER_WIN" -> {
-                    player1.setSymbol("★");
-                    player2.setSymbol("★");
+                    player1.setSymbol(starStone);
+                    player2.setSymbol(starStone);
                     printBoard();
-                    printStream.write((currentPlayer.getName() + " WINS!").getBytes());
+                    printStream.write((currentPlayer.getName() + " WINS!\n").getBytes());
                     playing = false; //Game ends
                 }
                 case "BOARD_FULL" -> {
-                    printStream.write("DRAW!".getBytes());
+                    printBoard();
+                    printStream.write("DRAW!\n".getBytes());
                     playing = false; // Game ends
                 }
                 case "STONE_PLACED" -> {
-                    displayBoard.drawStone(player1.getSymbol(), player2.getSymbol(), board); // FIXME by merging GUI.
-                    printStream.write(("STONE PLACED FOR " + currentPlayer.getName()).getBytes());
-                    swapCurrentPlayer(); //next player's turn
+                    printBoard();
+                    printStream.write(("STONE PLACED FOR " + currentPlayer.getName() + "\n").getBytes());
+                    swapCurrentPlayer(); // Next player's turn
                 }
                 case "CELL_UNAVAILABLE" -> {
-                    printStream.write("INVALID. TRY AGAIN".getBytes()); // Player must request a different move
+                    printStream.write("INVALID. TRY AGAIN\n".getBytes()); // Player must request a different move
                 }
                 case "EXIT" -> {
-                    printStream.write("GAME OVER...".getBytes());
+                    printStream.write("GAME OVER...\n".getBytes());
                     playing = false; // End of game
                 }
             }
         }
     }
 
-    public void initCurrentPlayerRandomly() {
+    public void promptToSetMode() throws IOException {
+        // Sets the game mode from user input, handles exceptions
+        printStream.write("""
+                SELECT A GAME MODE, "PVP" FOR PLAYER VS PLAYER or "PVC" FOR PLAYER VS COMPUTER:
+                >>""".getBytes());
+
+        // User will select the game mode
+        String modeChoice;
+        boolean selectingMode = true;
+        while (selectingMode) {
+            modeChoice = scanner.nextLine();
+            if (modeChoice.equals("PVP")) {
+                printStream.write("YOU SELECTED PLAYER VS PLAYER!\n".getBytes());
+                gameMode = "PLAYER_VS_PLAYER";
+                selectingMode = false;
+            }
+            else if (modeChoice.equals("PVC")){
+                printStream.write("YOU SELECTED PLAYER VS COMPUTER!\n".getBytes());
+                gameMode = "PLAYER_VS_COMPUTER";
+                selectingMode = false;
+            }
+            else {
+                printStream.write("INVALID SELECTION!".getBytes());
+            }
+        }
+    }
+
+    public void promptToSetPlayers() throws IOException {
+        // Sets player1
+        printStream.write("""
+                    PLAYER 1, PLEASE ENTER YOUR NAME:
+                    >>""".getBytes());
+        player1 = new HumanPlayer(scanner.nextLine(), stoneA);
+        printStream.write(("HELLO, " + player1.getName() + ".\n").getBytes());
+
+        if (gameMode.equals("PLAYER_VS_PLAYER")) {
+            // Sets player2
+            printStream.write("""
+                    PLAYER 2, PLEASE ENTER YOUR NAME:
+                    >>""".getBytes());
+            player2 = new HumanPlayer(scanner.nextLine(), stoneB);
+            printStream.write(("GREETINGS, " + player2.getName() + ".\n").getBytes());
+        }
+        else {
+            // Exception Handling: Game defaults to mode PLAYER_VS_COMPUTER
+            player2 = new ComputerPlayer(null, stoneB);
+            printStream.write(("YOUR OPPONENTS' IS " + player2.getName() + ".\n").getBytes());
+        }
+
         // Randomly selects the first player
         Random coinToss = new Random();
         if(coinToss.nextBoolean()) currentPlayer = player1;
         else currentPlayer = player2;
+
+        printStream.write((currentPlayer.getName() + " WILL GO FIRST...\n").getBytes());
     }
 
-    public void initBothPlayers(String mode) {
-        player1 = new HumanPlayer("Player1", "●");
-        if (mode.equals("P") || mode.equals("p")) {
-            player2 = new HumanPlayer("Player2", "■");
+    public void promptToSetBoard() throws IOException {
+        // Sets board size
+        printStream.write("""
+                SELECT A THE SIZE OF YOUR BOARD (ENTER A NUMBER BETWEEN 15 and 100):
+                >>""".getBytes());
+
+        // Handles non-numeric entry exceptions
+        int size = -1;
+        String sizeChoice = scanner.nextLine();
+        try {
+            size = Integer.parseInt(sizeChoice);
         }
-        else if (mode.equals("C") || mode.equals("c")){
-            player2 = new ComputerPlayer("Computer", "X");
+        catch(NumberFormatException ignored){
         }
-        else {
-            // Game defaults to Player versus Computer
-            player2 = new ComputerPlayer("Computer", "X");
+
+        if (size < 15 || size > 100) {
+            printStream.write("INVALID SELECTION. DEFAULTING TO 15*15 BOARD\n".getBytes());
+            size = 15;
         }
+        board = new Board(size);
+        displayBoard = new GUI(size);
+        displayBoard.createBoard(); // DELETEME - Unnecessary, add statement to its constructor
+    }
+
+    public String promptToRequestMove() throws IOException {
+        // This is the currentPlayer requests a move
+        printStream.write((
+                currentPlayer.getSymbol() + " " +
+                currentPlayer.getName() +
+                " ENTER \"X Y\" VALUES OR ENTER \"STOP\" TO EXIT THE GAME. (\"2 5\")\n" +
+                ">> ").getBytes());
+
+        // Will return boards move evaluation as a string
+        return currentPlayer.requestMove(getBoard(), getScanner(), getPrintStream());
     }
 
     public void printMessage(String message) throws IOException {
-        // FIXME: Not sure why this method exists. It writes to printStream
-        //  Prof Cheon recommended we add it
+        // Not sure why this method exists. It writes to the printStream.
+        //  Prof Cheon recommended we add it in his lecture slides
         printStream.write(message.getBytes());
     }
 
@@ -108,70 +193,7 @@ public class ConsoleUI {
         displayBoard.drawBoard(); //Will print board
     }
 
-    public void promptToSetBoard() throws IOException {
-        //  User will select the boards size
-        printStream.write("""
-                SELECT A THE SIZE OF YOUR BOARD:
-                (ENTER A NUMBER BETWEEN 15 and 100)
-                >> """.getBytes());
-
-        int size = -1;
-        String sizeChoice = scanner.nextLine();  // Reads from either InputStream String or System.in String
-        try {                                    // Handling exceptions (i.e. if user inputs non-numeric string)
-            size = Integer.parseInt(sizeChoice); // Attempts to cast String to Int
-        }
-        catch(NumberFormatException ignored){
-            // Nothing happens here intentionally
-        }
-
-        if (size < 15 || size > 100) {
-            printStream.write("INVALID SELECTION. DEFAULTING TO 15X15\n".getBytes());
-            size = 15;
-        }
-        board = new Board(size);
-        displayBoard = new GUI(size); // Creates display board
-        displayBoard.createBoard(); // DELETEME - Unnecessary, add statement to its constructor
-        initCurrentPlayerRandomly();
-    }
-
-    public void promptToSetMode() throws IOException {
-        // Sets the game mode from user input, handles exceptions
-        printStream.write("""
-                SELECT A GAME MODE:
-                (ENTER "P" FOR PLAYER VS PLAYER or "C" FOR PLAYER VS COMPUTER)
-                >> """.getBytes());
-
-        // User will select the game mode
-        String modeChoice;
-        int modeValue = 0; // 1 means PVP, 2 means  PVC
-        boolean selectingMode = true;
-        while (selectingMode) {
-            modeChoice = scanner.nextLine();
-            if (modeChoice.equals("P")) {
-                printStream.write("YOU SELECTED PLAYER VS PLAYER! ---------------------------------------\n".getBytes());
-                modeValue = 1;
-                initBothPlayers(modeChoice);
-                selectingMode = false;
-            }
-            else if (modeChoice.equals("C")){
-                printStream.write("YOU SELECTED PLAYER VS COMPUTER! ---------------------------------------\n".getBytes());
-                modeValue = 2;
-                initBothPlayers(modeChoice);
-                selectingMode = false;
-            }
-            else {
-                printStream.write("INVALID SELECTION!".getBytes());
-            }
-        }
-    }
-
-    public String promptToRequestMove() throws IOException {
-        // This is how a player requests a move.
-        String result = getCurrentPlayer().requestMove(getBoard(), getScanner(), getPrintStream());
-        return result;
-    }
-
-    public void swapCurrentPlayer(){
+    private void swapCurrentPlayer() {
         if (currentPlayer.equals(player1))
             currentPlayer = player2;
         else currentPlayer = player1;
@@ -193,6 +215,10 @@ public class ConsoleUI {
         return board;
     }
 
+    public String getGameMode() {
+        return gameMode;
+    }
+
     public Scanner getScanner() {
         return scanner;
     }
@@ -203,8 +229,7 @@ public class ConsoleUI {
 
     public static void main(String[] args) throws IOException {
         ConsoleUI ui = new ConsoleUI(); // Instantiates UI, prompts to set board
-        ui.promptToSetMode();
-        ui.promptToSetBoard();
+        ui.initConsoleUI();
         ui.playGame();
     }
 }

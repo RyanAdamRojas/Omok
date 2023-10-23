@@ -1,5 +1,6 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Random;
 import java.util.Scanner;
@@ -9,27 +10,27 @@ public class ComputerPlayer extends Player {
     private String symbol;
     
     public ComputerPlayer(String name, String symbol) {
-        super(name, symbol);
+        super("ChatGPT", symbol);
     }
 
     @Override
-    public String requestMove(Board board, Scanner scanner, PrintStream printStream){
-        // FIXME Makes random move, not a smart move.
+    public String requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException {
+        // FIXME Makes random move, not a smart one.
+        // Gets random x and y
         Random random = new Random();
         int x = random.nextInt(board.getSize());
         int y = random.nextInt(board.getSize());
-        String validationMessage = board.validateMove(this.symbol, x, y);
-//        Possible validation Messages
-//        "GAME_DRAW":
-//        "PLAYER_WIN"
-//        "STONE_PLACED":
-//        "NOT_AVAILABLE":
-        while (validationMessage.equals("NOT_AVAILABLE")) {
+        printStream.write(("Computer is trying coordinates: " + x + y).getBytes());
+        String message = board.evaluateMove(this.getSymbol(), x, y);
+
+        // Loops until an x y is available
+        while (message.equals("NOT_AVAILABLE")) {
             x = random.nextInt(board.getSize());              // Gets new x
             y = random.nextInt(board.getSize());              // Gets new y
-            validationMessage = board.validateMove(this.symbol, x, y);  // Tries new x and y
+            printStream.write(("Computer is trying coordinates: " + x + y).getBytes());
+            message = board.evaluateMove(this.getSymbol(), x, y);  // Tries new x and y
         }
-        return validationMessage; // Stone placed
+        return message; // Stone placed
     }
 
 //    public String requestMove(Board board){
@@ -60,7 +61,7 @@ public class ComputerPlayer extends Player {
         Random random = new Random();
         int x = random.nextInt(board.getSize());
         int y = random.nextInt(board.getSize());
-        String validationMessage = board.validateMove(this.symbol, x, y);
+        String validationMessage = board.evaluateMove(this.getSymbol(), x, y);
 //        Possible validation Messages
 //        "GAME_DRAW":
 //        "PLAYER_WIN"
@@ -69,7 +70,7 @@ public class ComputerPlayer extends Player {
         while (validationMessage.equals("NOT_AVAILABLE")) {
             x = random.nextInt(board.getSize());              // Gets new x
             y = random.nextInt(board.getSize());              // Gets new y
-            validationMessage = board.validateMove(this.symbol, x, y);  // Tries new x and y
+            validationMessage = board.evaluateMove(this.getSymbol(), x, y);  // Tries new x and y
         }
         return validationMessage; // Stone placed
     }
