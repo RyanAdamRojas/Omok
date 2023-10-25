@@ -61,10 +61,10 @@ public class GUI {
             for (int j = 1; j < width + 3; j++) {
                 if(i % 2 != 0){
                     if (j == height+2){
-                        displayBoard[i][j] = "+";
+                        displayBoard[i][j] = " ";
                     }
                     else {
-                        displayBoard[i][j] = "+---";
+                        displayBoard[i][j] = "----";
                     }
                 }
                 else{
@@ -83,24 +83,24 @@ public class GUI {
             System.out.println(); // Move to the next row
         }
     }
-    public void drawStone(String player1Symbol, String player2Symbol, Board board){
-        String[][] cells = board.getCells();
+    public void drawStone(Player player1, Player player2, Board board){
+        Player[][] cells = board.getCells();
         int rowIndex = 3;//Starts at index 3
 
         for(int row = 0; row < cells.length; row++){//Adds player1's stones
             for(int col = 0; col < cells[row].length; col++){
-                String currentCell = cells[row][col];
+                Player currentPlayer = cells[row][col];
 
-                if(currentCell != null && currentCell.equals(player1Symbol)){
+                if(currentPlayer != null && currentPlayer.equals(player1)){
                     int displayRow = rowIndex;
                     int displayCol = col + 2;
-                    displayBoard[displayRow][displayCol] = player1Symbol + "---";
+                    displayBoard[displayRow][displayCol] = player1.getSymbol() + "---";
                 }
 
-                if(currentCell != null && currentCell.equals(player2Symbol)){//Adds player2's stones
+                if(currentPlayer != null && currentPlayer.equals(player2)){//Adds player2's stones
                     int displayRow = rowIndex;
                     int displayCol = col + 2;
-                    displayBoard[displayRow][displayCol] = player2Symbol + "---";
+                    displayBoard[displayRow][displayCol] = player2.getSymbol() + "---";
                 }
             }
             rowIndex += 2; //Needs to skip a row
