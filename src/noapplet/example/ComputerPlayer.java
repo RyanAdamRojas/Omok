@@ -4,53 +4,55 @@ package noapplet.example;
 import java.util.Random;
 
 public class ComputerPlayer extends Player {
-    private String name;
-    private String symbol;
-    
+
     public ComputerPlayer(String name, String symbol) {
         super(name, symbol);
     }
 
     @Override
-    public String requestMove(Board board){
+    public String requestMove(Board board) {
         // Check horizontally, vertically, and diagonally
         String horizontalMove = findWinningMoveHorizontally(board, getSymbol());
         String verticalMove = findWinningMoveVertically(board, getSymbol());
         String diagonalMove = findWinningMoveDiagonal1(board, getSymbol());
-        String result;
-        // Prioritize winning moves, then blocking opponent, then any other move logic
+
         if (horizontalMove != null) {
-            result = horizontalMove;
+            return horizontalMove;
         } else if (verticalMove != null) {
-            result = verticalMove;
+            return verticalMove;
         } else if (diagonalMove != null) {
-            result = diagonalMove;
+            return diagonalMove;
         } else {
-            // If no winning or blocking move is found choose a random empty cell
-            return findRandomEmptyCell(board);
+            // If no winning move is found, try to find an empty cell
+            String emptyCell = findRandomEmptyCell(board);
+            if (emptyCell != null) {
+                return emptyCell;
+            } else {
+                // No valid moves are available, return a message indicating the computer cannot move
+                return "NO_VALID_MOVE";
+            }
         }
-        String[] parts = result.split(" ");
-        int x = Integer.parseInt(parts[0]);
-        int y = Integer.parseInt(parts[1]);
-        return board.validateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
     }
 
     private String findRandomEmptyCell(Board board) {
         Random random = new Random();
-        int x = random.nextInt(board.getSize());
-        int y = random.nextInt(board.getSize());
-        String validationMessage = board.validateMove(this.symbol, x, y);
-//        Possible validation Messages
-//        "GAME_DRAW":
-//        "PLAYER_WIN"
-//        "STONE_PLACED":
-//        "NOT_AVAILABLE":
-        while (validationMessage.equals("NOT_AVAILABLE")) {
-            x = random.nextInt(board.getSize());              // Gets new x
-            y = random.nextInt(board.getSize());              // Gets new y
-            validationMessage = board.validateMove(this.symbol, x, y);  // Tries new x and y
+        int size = board.getSize();
+
+        // Try to find a valid empty cell within a reasonable number of attempts
+        int maxAttempts = size * size * 2; // Adjust as needed
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+            int x = random.nextInt(size);
+            int y = random.nextInt(size);
+            String validationMessage = board.validateMove(this.getSymbol(), x, y);
+
+            if (!validationMessage.equals("CELL_UNAVAILABLE")) {
+                // Found a valid empty cell
+                return x + " " + y;
+            }
         }
-        return validationMessage; // Stone placed
+
+        // If no valid empty cell is found after many attempts, return null
+        return null;
     }
 
     private String findWinningMoveDiagonal1(Board board, String symbol) {
@@ -61,7 +63,7 @@ public class ComputerPlayer extends Player {
             for (int col = 0; col < boardSize - 4; col++) {
                 boolean isPotentialWinningMove = true;
                 for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(symbol)) {
+                    if (cells[row + k][col + k] == null || !cells[row + k][col + k].equals(symbol)) {
                         isPotentialWinningMove = false;
                         break;
                     }
@@ -69,7 +71,7 @@ public class ComputerPlayer extends Player {
 
                 if (isPotentialWinningMove) {
                     // This is a winning move in the diagonal direction
-                    // Return the coordinates as a string, e.g., "x y"
+                    // Return the coordinates as "row col"
                     return (row + 4) + " " + (col + 4);
                 }
             }
@@ -77,6 +79,7 @@ public class ComputerPlayer extends Player {
 
         return null; // No winning move found
     }
+
     private String findWinningMoveHorizontally(Board board, String symbol) {
         int boardSize = board.getSize();
         String[][] cells = board.getCells();
@@ -85,7 +88,7 @@ public class ComputerPlayer extends Player {
             for (int col = 0; col < boardSize - 4; col++) {
                 boolean isPotentialWinningMove = true;
                 for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(symbol)) {
+                    if (cells[row][col + k] == null || !cells[row][col + k].equals(symbol)) {
                         isPotentialWinningMove = false;
                         break;
                     }
@@ -93,7 +96,7 @@ public class ComputerPlayer extends Player {
 
                 if (isPotentialWinningMove) {
                     // This is a winning move horizontally
-                    // Return the coordinates as a string, "x y"
+                    // Return the coordinates as "row col"
                     return row + " " + col;
                 }
             }
@@ -110,7 +113,7 @@ public class ComputerPlayer extends Player {
             for (int row = 0; row < boardSize - 4; row++) {
                 boolean isPotentialWinningMove = true;
                 for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(symbol)) {
+                    if (cells[row + k][col] == null || !cells[row + k][col].equals(symbol)) {
                         isPotentialWinningMove = false;
                         break;
                     }
@@ -118,7 +121,7 @@ public class ComputerPlayer extends Player {
 
                 if (isPotentialWinningMove) {
                     // This is a winning move vertically
-                    // Return the coordinates as a string, "x y"
+                    // Return the coordinates as "row col"
                     return (row + 4) + " " + col;
                 }
             }
@@ -127,3 +130,4 @@ public class ComputerPlayer extends Player {
         return null; // No winning move found
     }
 }
+
