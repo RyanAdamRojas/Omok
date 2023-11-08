@@ -16,7 +16,7 @@ public class ConsoleUI {
     private final String stoneA = "●"; // May be changed
     private final String stoneB = "■"; // May be changed
     private final String starStone = "★"; // May be changed
-    private GUI displayBoard;           // DELETE after merging GUI with ConsoleUI
+    private TextGraphics displayBoard;           // DELETE after merging GUI with ConsoleUI
     private final Scanner scanner;
     private final PrintStream printStream;
 
@@ -165,7 +165,7 @@ public class ConsoleUI {
             size = 15;
         }
         board = new Board(size);
-        displayBoard = new GUI(size);
+        displayBoard = new TextGraphics(size);
         displayBoard.createBoard(); // DELETEME - Unnecessary, add statement to its constructor
     }
 
@@ -189,7 +189,7 @@ public class ConsoleUI {
 
     public void printBoard(){
         // FIXME: GUI should be merged with ConsoleUI.
-        displayBoard.drawStone(player1.getSymbol(), player2.getSymbol(), board);//needs parameters //needs to be fixed
+        displayBoard.drawStones(player1, player2, board);//needs parameters //needs to be fixed
         displayBoard.drawBoard(); //Will print board
     }
 
