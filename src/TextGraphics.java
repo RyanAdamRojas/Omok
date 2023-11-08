@@ -1,14 +1,14 @@
-public class GUI {
+public class TextGraphics {
     private int width, height;
     private String[][] displayBoard;
 
-    public GUI(){
+    public TextGraphics(){
         //Default constructor
         width = 15;
         height = 15;
         displayBoard = new String[(2 * height)+4][width + 3];
     }
-    public GUI(int size){
+    public TextGraphics(int size){
         //Checks if the given size is 15 or greater than
         //If so uses the given size
         if(size >= 15) {
