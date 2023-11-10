@@ -1,10 +1,9 @@
 import org.junit.jupiter.api.*;
 import java.io.*;
-import static org.junit.Assert.*;
 
 
 public class ConsoleUITest {
-    private ConsoleUI testUI;
+    private Main testUI;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -20,8 +19,8 @@ public class ConsoleUITest {
         InputStream inputStream = new ByteArrayInputStream(testInput.getBytes());
         ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
         OutputStream outputStream = new PrintStream(resultStream, true); // true for auto flushing
-        testUI = new ConsoleUI(inputStream, outputStream);
-        testUI.initConsoleUI();
+        testUI = new Main(inputStream, outputStream);
+        testUI.init();
     }
 
     @AfterEach
@@ -55,8 +54,8 @@ public class ConsoleUITest {
         OutputStream outputStream = new PrintStream(resultStream, true); // true for auto flushing
 
         // Passing testInput into an instance of a new game which  plays the game
-        ConsoleUI ui = new ConsoleUI(inputStream, outputStream);
-        ui.initConsoleUI();
+        Main ui = new Main(inputStream, outputStream);
+        ui.init();
         ui.playGame();
     }
 
@@ -79,7 +78,7 @@ public class ConsoleUITest {
 
     @Test
     void testPromptToSetBoard() {
-        Assertions.assertEquals(15, testUI.getBoard().getSize());
+        Assertions.assertEquals(15, testUI.getBoard().size());
     }
 
     @Test
