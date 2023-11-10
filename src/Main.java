@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Random;
 import java.util.Scanner;
 
 // TODO:
@@ -7,31 +6,32 @@ import java.util.Scanner;
 // 2. Create new Strategy class to be implemented by Player class for cheat mode
 // 3. FIXME: After winning, winning streak isnt printed
 
-public class GameLogic {
+public class Main {
 
     private Player player1, player2, currentPlayer;
-    private Board board;
+    private static Board board;
     private String gameMode;
-    private final String stoneA = "●"; // May be changed
-    private final String stoneB = "■"; // May be changed
-    private final String starStone = "★"; // May be changed
+    private final String stoneA = "●";      // May be changed
+    private final String stoneB = "■";      // May be changed
+    private final String starStone = "★";   // May be changed
     private TextGraphics displayBoard;           // DELETE after merging GUI with ConsoleUI
     private GUI gui;
     private final Scanner scanner;
     private final PrintStream printStream;
 
-    GameLogic() throws IOException {
+    Main() throws IOException {
         //  No args constructor allows real users to play with terminal
         this(System.in, System.out);
     }
 
-    GameLogic(InputStream in, OutputStream out) throws IOException {
+    Main(InputStream in, OutputStream out) throws IOException {
         // Args constructor uses test class' hard coded input as user input
         this.scanner = new Scanner(in);             // Wraps variable in inside a scanner  so that it may be read
         this.printStream = new PrintStream(out);    // Wraps variable out inside a printStream so that it may be printed
     }
 
     public void init() throws IOException {
+        board = new Board(15);
         gui = new GUI();
     }
 
@@ -45,7 +45,7 @@ public class GameLogic {
 //            switch (result) { // Game States are based on the players' stone placement.
 //                case "PLAYER_WIN" -> {
 //                    player1.setSymbol(starStone);
-//                    player2.setSymbol(starStone);
+//                    player2.setSymbol(starStone);5
 //                    printBoard();
 //                    printStream.write((currentPlayer.getName() + " WINS!\n").getBytes());
 //                    playing = false; //Game ends
@@ -89,7 +89,7 @@ public class GameLogic {
         return this.currentPlayer;
     }
 
-    public Board getBoard() {
+    public static Board getBoard() {
         return board;
     }
 
@@ -106,6 +106,6 @@ public class GameLogic {
     }
 
     public static void main(String[] args) throws IOException {
-        new GameLogic().init(); // Instantiates UI, prompts to set board
+        new Main().init(); // Instantiates UI, prompts to set board
     }
 }

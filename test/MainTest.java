@@ -2,7 +2,7 @@ import org.junit.jupiter.api.*;
 import java.io.*;
 
 
-public class ConsoleUITest {
+public class MainTest {
     private Main testUI;
 
     @BeforeEach

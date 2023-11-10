@@ -5,8 +5,11 @@ import java.util.Scanner;
 
 public class HumanPlayer extends Player {
 
-    HumanPlayer(String name, String symbol) {
-        super(name, symbol);
+    HumanPlayer() {
+        super();
+    }
+    HumanPlayer(String name, StoneColor stoneColor) {
+        super(name, stoneColor);
     }
 
     @Override
@@ -29,7 +32,7 @@ public class HumanPlayer extends Player {
             try {
                 int x = Integer.parseInt(parts[0]);
                 int y = Integer.parseInt(parts[1]);
-                return board.evaluateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
+                return board.evaluateMove(this, x, y);//Calls validateMove method from Board class to see if x and y values are valid move
             }
             catch (NumberFormatException e) {
                 System.out.println("INVALID SELECTION! ENTER NUMERICAL VALUES.");

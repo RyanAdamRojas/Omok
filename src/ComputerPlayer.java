@@ -7,10 +7,13 @@ import java.util.Scanner;
 
 public class ComputerPlayer extends Player {
     private String name;
-    private String symbol;
-    
-    public ComputerPlayer(String name, String symbol) {
-        super("ChatGPT", symbol);
+    private StoneColor stoneColor;
+
+    ComputerPlayer(){
+        super();
+    }
+    ComputerPlayer(String name, StoneColor stoneColor) {
+        super("ChatGPT", stoneColor);
     }
 
     @Override
@@ -18,17 +21,17 @@ public class ComputerPlayer extends Player {
         // FIXME Makes random move, not a smart one.
         // Gets random x and y
         Random random = new Random();
-        int x = random.nextInt(board.getSize());
-        int y = random.nextInt(board.getSize());
+        int x = random.nextInt(board.size());
+        int y = random.nextInt(board.size());
         printStream.write(("Computer is trying coordinates: " + x + y).getBytes());
-        String message = board.evaluateMove(this.getSymbol(), x, y);
+        String message = board.evaluateMove(this, x, y);
 
         // Loops until an x y is available
         while (message.equals("NOT_AVAILABLE")) {
-            x = random.nextInt(board.getSize());              // Gets new x
-            y = random.nextInt(board.getSize());              // Gets new y
+            x = random.nextInt(board.size());              // Gets new x
+            y = random.nextInt(board.size());              // Gets new y
             printStream.write(("Computer is trying coordinates: " + x + y).getBytes());
-            message = board.evaluateMove(this.getSymbol(), x, y);  // Tries new x and y
+            message = board.evaluateMove(this, x, y);  // Tries new x and y
         }
         return message; // Stone placed
     }
@@ -59,31 +62,31 @@ public class ComputerPlayer extends Player {
 
     private String findRandomEmptyCell(Board board) {
         Random random = new Random();
-        int x = random.nextInt(board.getSize());
-        int y = random.nextInt(board.getSize());
-        String validationMessage = board.evaluateMove(this.getSymbol(), x, y);
+        int x = random.nextInt(board.size());
+        int y = random.nextInt(board.size());
+        String validationMessage = board.evaluateMove(this, x, y);
 //        Possible validation Messages
 //        "GAME_DRAW":
 //        "PLAYER_WIN"
 //        "STONE_PLACED":
 //        "NOT_AVAILABLE":
         while (validationMessage.equals("NOT_AVAILABLE")) {
-            x = random.nextInt(board.getSize());              // Gets new x
-            y = random.nextInt(board.getSize());              // Gets new y
-            validationMessage = board.evaluateMove(this.getSymbol(), x, y);  // Tries new x and y
+            x = random.nextInt(board.size());              // Gets new x
+            y = random.nextInt(board.size());              // Gets new y
+            validationMessage = board.evaluateMove(this, x, y);  // Tries new x and y
         }
         return validationMessage; // Stone placed
     }
 
-    private String findWinningMoveDiagonal1(Board board, String symbol) {
-        int boardSize = board.getSize();
-        String[][] cells = board.getCells();
+    private String findWinningMoveDiagonal1(Board board, String stoneColor) {
+        int boardSize = board.size();
+        Player[][] cells = board.getCells();
 
         for (int row = 0; row < boardSize - 4; row++) {
             for (int col = 0; col < boardSize - 4; col++) {
                 boolean isPotentialWinningMove = true;
                 for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(symbol)) {
+                    if (cells[row][col+k] == null || !cells[row][col+k].equals(this)) {
                         isPotentialWinningMove = false;
                         break;
                     }
@@ -99,15 +102,15 @@ public class ComputerPlayer extends Player {
 
         return null; // No winning move found
     }
-    private String findWinningMoveHorizontally(Board board, String symbol) {
-        int boardSize = board.getSize();
-        String[][] cells = board.getCells();
+    private String findWinningMoveHorizontally(Board board, String stoneColor) {
+        int boardSize = board.size();
+        Player[][] cells = board.getCells();
 
         for (int row = 0; row < boardSize; row++) {
             for (int col = 0; col < boardSize - 4; col++) {
                 boolean isPotentialWinningMove = true;
                 for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(symbol)) {
+                    if (cells[row][col+k] == null || !cells[row][col+k].equals(this)) {
                         isPotentialWinningMove = false;
                         break;
                     }
@@ -124,15 +127,15 @@ public class ComputerPlayer extends Player {
         return null; // No winning move found
     }
 
-    private String findWinningMoveVertically(Board board, String symbol) {
-        int boardSize = board.getSize();
-        String[][] cells = board.getCells();
+    private String findWinningMoveVertically(Board board, String stoneColor) {
+        int boardSize = board.size();
+        Player[][] cells = board.getCells();
 
         for (int col = 0; col < boardSize; col++) {
             for (int row = 0; row < boardSize - 4; row++) {
                 boolean isPotentialWinningMove = true;
                 for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(symbol)) {
+                    if (cells[row][col+k] == null || !cells[row][col+k].equals(this)) {
                         isPotentialWinningMove = false;
                         break;
                     }

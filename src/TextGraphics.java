@@ -1,14 +1,14 @@
-public class GUI {
+public class TextGraphics {
     private int width, height;
     private String[][] displayBoard;
 
-    public GUI(){
+    public TextGraphics(){
         //Default constructor
         width = 15;
         height = 15;
         displayBoard = new String[(2 * height)+4][width + 3];
     }
-    public GUI(int size){
+    public TextGraphics(int size){
         //Checks if the given size is 15 or greater than
         //If so uses the given size
         if(size >= 15) {
@@ -61,10 +61,10 @@ public class GUI {
             for (int j = 1; j < width + 3; j++) {
                 if(i % 2 != 0){
                     if (j == height+2){
-                        displayBoard[i][j] = " ";
+                        displayBoard[i][j] = "+";
                     }
                     else {
-                        displayBoard[i][j] = "----";
+                        displayBoard[i][j] = "+---";
                     }
                 }
                 else{
@@ -83,28 +83,43 @@ public class GUI {
             System.out.println(); // Move to the next row
         }
     }
-    public void drawStone(Player player1, Player player2, Board board){
+
+    public void drawStones() {
+        Board b = new Board(15);
+        HumanPlayer p1 = new HumanPlayer();
+        ComputerPlayer p2 = new ComputerPlayer();
+        drawStones(p1, p2, b);
+    }
+
+    public void drawStones(Player player1, Player player2, Board board){
         Player[][] cells = board.getCells();
+
         int rowIndex = 3;//Starts at index 3
 
-        for(int row = 0; row < cells.length; row++){//Adds player1's stones
+        for(int row = 0; row < cells.length; row++){ //Adds player1's stones
             for(int col = 0; col < cells[row].length; col++){
                 Player currentPlayer = cells[row][col];
 
                 if(currentPlayer != null && currentPlayer.equals(player1)){
                     int displayRow = rowIndex;
                     int displayCol = col + 2;
-                    displayBoard[displayRow][displayCol] = player1.getSymbol() + "---";
+                    displayBoard[displayRow][displayCol] = player1.getStoneColor() + "---";
                 }
 
                 if(currentPlayer != null && currentPlayer.equals(player2)){//Adds player2's stones
                     int displayRow = rowIndex;
                     int displayCol = col + 2;
-                    displayBoard[displayRow][displayCol] = player2.getSymbol() + "---";
+                    displayBoard[displayRow][displayCol] = player2.getStoneColor() + "---";
                 }
             }
             rowIndex += 2; //Needs to skip a row
         }
+    }
 
+    public static void main(String[] args) {
+        TextGraphics display = new TextGraphics(15);
+        display.createBoard();
+        display.drawStones();
+        display.drawBoard();
     }
 }
