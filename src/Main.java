@@ -14,7 +14,7 @@ public class Main {
     private final String stoneA = "●";      // May be changed
     private final String stoneB = "■";      // May be changed
     private final String starStone = "★";   // May be changed
-    private TextGraphics displayBoard;           // DELETE after merging GUI with ConsoleUI
+    private TextGraphics displayBoard;      // DELETE after merging GUI with ConsoleUI
     private GUI gui;
     private final Scanner scanner;
     private final PrintStream printStream;

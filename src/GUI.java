@@ -22,7 +22,7 @@ public class GUI {
 
     GUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(550, 700));
+        frame.setPreferredSize(new Dimension(512, 700)); // DO NOT CHANGE
         frame.setResizable(false);
         frame.add(masterPanel);
         initScreens();
