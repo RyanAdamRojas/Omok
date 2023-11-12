@@ -13,13 +13,13 @@ public class HumanPlayer extends Player {
     }
 
     @Override
-    public String requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException {
+    public State requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException {
         // Loops until a valid x-y coordinate is entered
         String userInput;
         while (true) {
             userInput = scanner.nextLine();//Takes in user input
             if (userInput.equals("STOP")){//To quit the game
-                return "EXIT";
+                return State.EXIT_REQUEST;
             }
 
             // Handles non-integer or non-coordinate exceptions

@@ -15,8 +15,8 @@ public class BoardTest {
     private Board columnStreak = new Board(15);
     private Board rowStreak = new Board(15);
 
-    private final HumanPlayer player1 = new HumanPlayer(null,"X");
-    private final HumanPlayer player2 = new HumanPlayer(null,"O");
+    private final HumanPlayer player1 = new HumanPlayer(null,StoneColor.BLUE);
+    private final HumanPlayer player2 = new HumanPlayer(null,StoneColor.RED);
 
     @BeforeEach
     void setUp() {

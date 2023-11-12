@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public abstract class Player {
-    private final String name;
+    private String name;
     private StoneColor stoneColor;
 
     Player(){
@@ -19,12 +19,16 @@ public abstract class Player {
     }
 
     //Every abstract class must have at least one abstract method
-    public abstract String requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException;
+    public abstract State requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException;
 
     //Getters & Setter
+    public void setName(String name) {
+        this.name = name;
+    }
     public String getName() {
         return name;
     }
+
     public StoneColor getStoneColor() {
         return this.stoneColor;
     }

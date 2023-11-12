@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Abstraction of an Omok board, which consists of n x n
+ * Abstraction of an Omok board, which consists of n col n
  intersections
  * or places where players can place their stones. The board can be
- * accessed using a pair of 0-based indices (x, y), where x and y
+ * accessed using a pair of 0-based indices (col, row), where col and row
  * denote the column and row number, respectively. The top-left
  * intersection is represented by the indices (0, 0), and the
  * bottom-right intersection is represented by the indices (n-1, n-1).
@@ -45,6 +45,28 @@ public class Board {
         }
     }
 
+    /**
+     * Evaluates the Players move request
+     *
+     * @param col 0-based column (vertical) index
+     * @param row 0-based row (horizontal) index
+     * @return message String specifying the result
+     */
+    public State evaluateMove(Player player, int col, int row) {
+        if (!isCellOccupied(col, row)) {
+            placeStone(player, col, row);
+
+            // Checks what happens after stone is placed
+            if (isWonBy(player))
+                return State.PLAYER_WIN;
+            else if (isFull())
+                return State.BOARD_FULL;
+            else
+                return State.STONE_PLACED;
+        }
+        return State.CELL_UNAVAILABLE;
+    }
+
     /**Returns the size of this board
      * @return int size*/
     public int size() {
@@ -79,14 +101,14 @@ public class Board {
 
     /**
      * Place a stone for the specified player at a specified
-     * intersection (x, y) on the board.
+     * intersection (col, row) on the board.
      * @param player Player whose stone is to be placed
-     * @param x 0-based column (vertical) index
-     * @param y 0-based row (horizontal) index
+     * @param col 0-based column (vertical) index
+     * @param row 0-based row (horizontal) index
      */
-    public void placeStone(Player player, int x, int y) {
-        if (x > 0 && x <= size && y > 0 && y <= size) {
-            cells[y-1][x-1] = player; // Places a stone
+    public void placeStone(Player player, int col, int row) {
+        if (col >= 0 && col < size && row >= 0 && row < size) {
+            cells[col][row] = player; // Places a stone
             occupiedCellCount++;
             if (occupiedCellCount == maxOccupiedCellCount)
                 isFull = true;
@@ -95,98 +117,65 @@ public class Board {
 
     /**
      * Return a boolean value indicating whether the specified
-     * intersection (x, y) on the board is empty or not.
+     * intersection (col, row) on the board is empty or not.
      *
-     * @param x 0-based column (vertical) index
-     * @param y 0-based row (horizontal) index
+     * @param col 0-based column (vertical) index
+     * @param row 0-based row (horizontal) index
      */
-    public boolean isCellEmpty(int x, int y) {
-        // x and y must be offset by 1 because display coordinates are not zero based)
-        return cells[y-1][x-1] == null;
-    }
-
-    /**
-     * Evaluates the Players move request
-     *
-     * @param x 0-based column (vertical) index
-     * @param y 0-based row (horizontal) index
-     * @return message String specifying the result
-     */
-    public String evaluateMove(Player player, int x, int y) {
-        if (!isCellOccupied(x, y)) {
-            placeStone(player, x, y);
-
-            // Checks what happens after stone is placed
-            if (isWonBy(player))
-                return "PLAYER_WIN";
-            else if (isFull())
-                return "BOARD_FULL";
-            else
-                return "STONE_PLACED";
-        }
-        return "CELL_UNAVAILABLE";
+    public boolean isCellEmpty(int col, int row) {
+        return cells[col][row] == null;
     }
 
     /**
      * Is the specified place on the board occupied?
      *
-     * @param x 0-based column (vertical) index
-     * @param y 0-based row (horizontal) index
+     * @param col 0-based column (vertical) index
+     * @param row 0-based row (horizontal) index
      * @return boolean
      */
-    public boolean isCellOccupied(int x, int y){
-        // Check if coordinates are within the valid bounds
-        if (x >= 1 && x <= cells.length && y >= 1 && y <= cells[0].length) {
-            // Check if the cell is null (available)
-            return cells[y-1][x-1] != null;
-        }
-        else {
-            // Coordinates are out of bounds
-            return false;
-        }
+    public boolean isCellOccupied(int col, int row){
+        if (col >= 0 && col < size && row >= 0 && row < size) // Stay within bounds
+            return cells[col][row] != null; // null = available
+        else
+            return false;  // Coordinates are out of bounds
     }
 
     /**
      * Rreturn a boolean value indicating whether the specified
-     * intersection (x, y) on the board is occupied by the given
+     * intersection (col, row) on the board is occupied by the given
      * player or not.
      *
-     * @param x 0-based column (vertical) index
-     * @param y 0-based row (horizontal) index
+     * @param col 0-based column (vertical) index
+     * @param row 0-based row (horizontal) index
      */
-    public boolean isCellOccupiedBy(Player player, int x, int y) {
-        // Checks if x y are within bounds
-        if (x < 1 || x > cells.length || y < 1 || y > cells[0].length) {
+    public boolean isCellOccupiedBy(Player player, int col, int row) {
+        // Checks if col row are within bounds
+        if (col < 1 || col > size || row < 1 || row > size)
             return false;
-        }
 
-        Player cellPlayer = cells[y - 1][x - 1];
+        Player cellPlayer = cells[col][row];
 
         // Handles null player
         if (cellPlayer == null)
             return player == null;
 
         return cellPlayer.equals(player);
-
     }
 
     /**
-     * Returns the player who occupies the specified intersection (x,
-     y)
+     * Returns the player who occupies the specified intersection (col,
+     row)
      * on the board. If the place is empty, this method returns null.
      *
-     * @param x 0-based column (vertical) index
-     * @param y 0-based row (horizontal) index
+     * @param col 0-based column (vertical) index
+     * @param row 0-based row (horizontal) index
      */
-    public Player playerAt(Player p1, Player p2,int x, int y) {
-        // Fixed: Method Signature is altered to include Player object like isOccupiedBy() already does..
-        // Otherwise the Board class would need refactoring.
-        Player p0 = cells[y-1][x-1];
-        if (p1.equals(p0))
-            return p1;
-        else if (p2.equals(p0)) {
-            return p2;
-        }
+    public Player playerAt(Player player1, Player player2, int col, int row) {
+        Player mysteryPlayer = cells[col][row];
+        if (player1.equals(mysteryPlayer))
+            return player1;
+        else if (player2.equals(mysteryPlayer))
+            return player2;
         return null;
     }
 

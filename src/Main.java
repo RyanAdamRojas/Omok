@@ -32,7 +32,7 @@ public class Main {
 
     public void init() throws IOException {
         board = new Board(15);
-        gui = new GUI();
+        gui = new GUI(this);
     }
 
     public void playGame() throws IOException {
@@ -75,6 +75,14 @@ public class Main {
         if (currentPlayer.equals(player1))
             currentPlayer = player2;
         else currentPlayer = player1;
+    }
+
+    public void setPlayer1(Player player1) {
+        this.player1 = player1;
+    }
+
+    public void setPlayer2(Player player2) {
+        this.player2 = player2;
     }
 
     public Player getPlayer1() {

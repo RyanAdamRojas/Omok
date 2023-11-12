@@ -6,8 +6,10 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
 
 public class GUI {
+    private Main main;
     private JFrame frame = new JFrame("Omok");
     private JPanel masterPanel = new JPanel();
     private JPanel header = new JPanel();
@@ -16,11 +18,12 @@ public class GUI {
     private JLabel headerLabel = new JLabel();
     private final Font headerFont = new Font("SF Text", Font.BOLD, 24);
     private final Font largeBodyFont = new Font("SF Text", Font.BOLD, 16);
-    private final Font bodyFont = new Font("SF Text", Font.BOLD, 12);
-    private String player1Name;
-    private String player2Name;
+    private final Font bodyFont = new Font("SF Text", Font.PLAIN, 12);
+    private Player player1;
+    private Player player2;
 
-    GUI() {
+    GUI(Main main) {
+        this.main = main;
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(512, 700)); // DO NOT CHANGE
         frame.setResizable(false);
@@ -33,7 +36,7 @@ public class GUI {
 
     private void initScreens() {
         masterPanel.setLayout(new BorderLayout());
-        showGameSessionScreen(); // FIXME Change to TitleScreen
+        showSelectionScreen(); // FIXME Change to TitleScreen
     }
 
     public void showTitleScreen() {
@@ -55,65 +58,89 @@ public class GUI {
         refreshGUI();
     }
 
-    public void showSelectionScreen(){
+    public void showSelectionScreen() {
         // Clears previous content
         clearGUI();
 
         // Sets header label
         setHeaderLabelAs("Omok");
 
-        // Creates body's setName panel
-        JPanel setNamePanel = new JPanel();
-        JLabel setNameLabel = createLargeBodyLabel("Name:");
-        JTextField setNameTextField = createJTextField("Type here");
-        addTextSelectionEffect(setNameTextField);
-        setNamePanel.add(setNameLabel);
-        setNamePanel.add(setNameTextField);
-
-        // Creates body's setOpponents panel
-        JPanel setOpponentPanel = new JPanel();
-        JPanel setOpponentSubPanel = new JPanel();
-        JLabel setOpponentLabel = createLargeBodyLabel("Opponent:");
+        // Creates setOpponents panel
         JRadioButton selectHumanButton = createJRadioButton("Human");
         JRadioButton selectComputerButton = createJRadioButton("Computer");
-        setOpponentSubPanel.add(selectHumanButton);
-        setOpponentSubPanel.add(selectComputerButton);
-        setOpponentPanel.add(setOpponentLabel);
-        setOpponentPanel.add(setOpponentSubPanel);
+        JPanel setOpponentPanel = createSetOppPanel(selectHumanButton, selectComputerButton);
 
-        // Creates body's dynamic message panel
-        JPanel dynamicMessagePanel = new JPanel();
-        JLabel messageLabel = createBodyLabel("Welcome!");
-        messageLabel.setFont(bodyFont);
-        dynamicMessagePanel.add(messageLabel);
-        dynamicMessagePanel.add(messageLabel);
+        // Creates setName panel
+        JTextField name1TextField = createJTextField("");
+        JTextField name2TextField = createJTextField("");
+        JPanel setNamePanel1 = createSetNamePanel("Player 1", name1TextField); // Not visible by default
+        JPanel setNamePanel2 = createSetNamePanel("Player 2", name2TextField); // Not visible by default
+
+        // Creates dynamic message panel
+        JLabel dynamicMessageLabel = new JLabel("");
+        JPanel dynamicMessagePanel = createDynamicMessagePanel(dynamicMessageLabel);
 
         // Creates footer's buttons
         JButton goToGameScreenButton = createJButton("Play");
         JButton backToTitleButton = createJButton("Back");
 
-        // Setting up all the buttons actions
-        selectHumanButton.addActionListener(e -> selectComputerButton.setSelected(false));
-        selectComputerButton.addActionListener(e -> selectHumanButton.setSelected(false));
+        // Creates button actions
+        selectHumanButton.addActionListener(e -> {
+            selectComputerButton.setSelected(false);
+            if (name1TextField.getText().isEmpty())
+                name1TextField.setText("Type here");
+//            if (name2TextField.getText().isEmpty())
+            name2TextField.setText("Type here");
+            name2TextField.setEditable(true);
+            if (!setNamePanel1.isVisible())
+                setNamePanel1.setVisible(true);
+            if (!setNamePanel2.isVisible())
+                setNamePanel2.setVisible(true);
+        });
+        selectComputerButton.addActionListener(e -> {
+            selectHumanButton.setSelected(false);
+            if (name1TextField.getText().isEmpty())
+                name1TextField.setText("Type here");
+            main.setPlayer2(new ComputerPlayer());
+            player2 = main.getPlayer2();
+            name2TextField.setText(player2.getName()); // FIXME Ensure computerPlayer sets own name
+            name2TextField.setEditable(false);
+            if (!setNamePanel1.isVisible())
+                setNamePanel1.setVisible(true);
+            if (!setNamePanel2.isVisible())
+                setNamePanel2.setVisible(true);
+        });
         backToTitleButton.addActionListener(e -> showTitleScreen());
         goToGameScreenButton.addActionListener(e -> {
-            player1Name = setNameTextField.getText();
+            name1TextField.setText("Type here");
+            setNamePanel1.setVisible(true);
+            setNamePanel2.setVisible(true);
+            String text = name1TextField.getText();
+            if (text.equals("Name"))
+                player1.setName("Player 1");
+            else
+                player1.setName(name1TextField.getText());
             showGameSessionScreen();
         });
         
         // Setting up the header, body, and footer (HBF) panels
         header.add(headerLabel, BorderLayout.CENTER);
-        body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
-        body.add(setNamePanel);
+        GridLayout gridLayout = new GridLayout(5,1);
+        gridLayout.setVgap(5);
+        body.setLayout(gridLayout);
         body.add(setOpponentPanel);
-        body.add(dynamicMessagePanel);
-        body.add(Box.createVerticalGlue());
+        body.add(setNamePanel1);
+        body.add(setNamePanel2);
+        body.add(new JPanel());
+        body.add(dynamicMessagePanel, Component.BOTTOM_ALIGNMENT);
         footer.add(backToTitleButton);
         footer.add(goToGameScreenButton);
 
         // Adds the HBF panels to the masterPanel
         masterPanel.add(header, BorderLayout.NORTH);
+        masterPanel.add(new JLabel("                "), BorderLayout.EAST); // Crude buffer space
         masterPanel.add(body, BorderLayout.CENTER);
+        masterPanel.add(new JLabel("                "), BorderLayout.WEST); // Crude buffer space
         masterPanel.add(footer, BorderLayout.SOUTH);
         refreshGUI();
     }
@@ -161,6 +188,44 @@ public class GUI {
         headerLabel.setFont(headerFont);
     }
 
+    private JPanel createSetOppPanel(JRadioButton selectHumanButton, JRadioButton selectComputerButton) {
+        // Creates components
+        JPanel setOpponentPanel = new JPanel();
+        JLabel setOpponentLabel = createLargeBodyLabel("Play Against");
+
+        // Specifies look and layout
+        setOpponentPanel.setLayout(new GridLayout(3,1));
+        setOpponentPanel.add(setOpponentLabel);
+        setOpponentPanel.add(selectHumanButton);
+        setOpponentPanel.add(selectComputerButton);
+        return setOpponentPanel;
+    }
+
+    private JPanel createSetNamePanel(String text, JTextField nameTextField) {
+        // Creates components
+        JPanel setNamePanel = new JPanel();
+        JLabel setName1Label = createLargeBodyLabel(text);
+        addTextSelectionEffect(nameTextField);
+
+        // Specifies look and layout
+        setNamePanel.setLayout(new GridLayout(2,1));
+        setNamePanel.add(setName1Label);
+        setNamePanel.add(nameTextField);
+        setNamePanel.setVisible(false);
+        return setNamePanel;
+    }
+
+    private JPanel createDynamicMessagePanel(JLabel messageLabel) {
+        // Creates components
+        JPanel jPanel = new JPanel();
+        messageLabel = createBodyLabel("");
+
+        // Specifies look and layout
+        messageLabel.setFont(bodyFont);
+        jPanel.add(messageLabel);
+        return jPanel;
+    }
+
     private JRadioButton createJRadioButton(String text) {
         JRadioButton radioButton = new JRadioButton(text);
         radioButton.setFont(bodyFont);
@@ -180,13 +245,13 @@ public class GUI {
         return label;
     }
 
-    private JLabel createLargeBodyLabel(String text){
+    private JLabel createLargeBodyLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(largeBodyFont);
         return label;
     }
 
-    private JTextField createJTextField(String text){
+    private JTextField createJTextField(String text) {
         JTextField textField = new JTextField(text);
         textField.setSize(10, 50);
         textField.setColumns(20);
@@ -194,7 +259,7 @@ public class GUI {
         return textField;
     }
 
-    private void addHoverEffect(JButton button){
+    private void addHoverEffect(JButton button) {
         button.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {}
@@ -216,7 +281,7 @@ public class GUI {
         });
     }
 
-    public void addTextSelectionEffect(JTextField textField){
+    public void addTextSelectionEffect(JTextField textField) {
         MouseListener mouseListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -246,14 +311,15 @@ public class GUI {
             e.printStackTrace();
             // Handle the exception here, perhaps reverting to a default Look & Feel
         }
-
-        // Now, you initialize the Counter instance
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new GUI();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+//
+//        SwingUtilities.invokeLater(() -> {
+//            try {
+//                if (main == null)
+//                    main = new Main();
+//                new GUI();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
     }
 }

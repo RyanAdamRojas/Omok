@@ -17,23 +17,23 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    public String requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException {
+    public State requestMove(Board board, Scanner scanner, PrintStream printStream) throws IOException {
         // FIXME Makes random move, not a smart one.
         // Gets random x and y
         Random random = new Random();
         int x = random.nextInt(board.size());
         int y = random.nextInt(board.size());
         printStream.write(("Computer is trying coordinates: " + x + y).getBytes());
-        String message = board.evaluateMove(this, x, y);
+        State state = board.evaluateMove(this, x, y);
 
         // Loops until an x y is available
-        while (message.equals("NOT_AVAILABLE")) {
+        while (state.equals(State.CELL_UNAVAILABLE)) {
             x = random.nextInt(board.size());              // Gets new x
             y = random.nextInt(board.size());              // Gets new y
             printStream.write(("Computer is trying coordinates: " + x + y).getBytes());
-            message = board.evaluateMove(this, x, y);  // Tries new x and y
+            state = board.evaluateMove(this, x, y);  // Tries new x and y
         }
-        return message; // Stone placed
+        return state; // Stone placed
     }
 
 //    public String requestMove(Board board){
@@ -60,22 +60,17 @@ public class ComputerPlayer extends Player {
 //        return board.validateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
 //    }
 
-    private String findRandomEmptyCell(Board board) {
+    private State findRandomEmptyCell(Board board) {
         Random random = new Random();
         int x = random.nextInt(board.size());
         int y = random.nextInt(board.size());
-        String validationMessage = board.evaluateMove(this, x, y);
-//        Possible validation Messages
-//        "GAME_DRAW":
-//        "PLAYER_WIN"
-//        "STONE_PLACED":
-//        "NOT_AVAILABLE":
-        while (validationMessage.equals("NOT_AVAILABLE")) {
+        State state = board.evaluateMove(this, x, y);
+        while (state.equals(State.CELL_UNAVAILABLE)) {
             x = random.nextInt(board.size());              // Gets new x
             y = random.nextInt(board.size());              // Gets new y
-            validationMessage = board.evaluateMove(this, x, y);  // Tries new x and y
+            state = board.evaluateMove(this, x, y);  // Tries new x and y
         }
-        return validationMessage; // Stone placed
+        return state; // Stone placed
     }
 
     private String findWinningMoveDiagonal1(Board board, String stoneColor) {
