@@ -195,7 +195,7 @@ public class Board {
 
     /** Return the winning row
      * @return List<> of Place objects*/
-    public List<Place> winningRow() {
+    public List<Place> getWinningRow() {
         return winningRow;
      }
 

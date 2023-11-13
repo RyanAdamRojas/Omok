@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Random;
 import java.util.Scanner;
 
 // TODO:
@@ -7,82 +8,51 @@ import java.util.Scanner;
 // 3. FIXME: After winning, winning streak isnt printed
 
 public class Main {
-
+    public static Main theInstance = new Main();
     private Player player1, player2, currentPlayer;
     private static Board board;
-    private String gameMode;
+    private GUI gui;
     private final String stoneA = "●";      // May be changed
     private final String stoneB = "■";      // May be changed
     private final String starStone = "★";   // May be changed
     private TextGraphics displayBoard;      // DELETE after merging GUI with ConsoleUI
-    private GUI gui;
-    private final Scanner scanner;
-    private final PrintStream printStream;
 
-    Main() throws IOException {
-        //  No args constructor allows real users to play with terminal
-        this(System.in, System.out);
+
+    public void init() {
     }
 
-    Main(InputStream in, OutputStream out) throws IOException {
-        // Args constructor uses test class' hard coded input as user input
-        this.scanner = new Scanner(in);             // Wraps variable in inside a scanner  so that it may be read
-        this.printStream = new PrintStream(out);    // Wraps variable out inside a printStream so that it may be printed
-    }
-
-    public void init() throws IOException {
+    public void run() {
         board = new Board(15);
-        gui = new GUI(this);
+        gui = new GUI(theInstance);
     }
 
-    public void playGame() throws IOException {
-        // Game logic switches between players until there's a wins, draw, or a player exits.
-        boolean playing = true;
-        while (playing) {
-//            printBoard();; // Will print board
-//            String result = promptToRequestMove(); // FIXME
-//
-//            switch (result) { // Game States are based on the players' stone placement.
-//                case "PLAYER_WIN" -> {
-//                    player1.setSymbol(starStone);
-//                    player2.setSymbol(starStone);5
-//                    printBoard();
-//                    printStream.write((currentPlayer.getName() + " WINS!\n").getBytes());
-//                    playing = false; //Game ends
-//                }
-//                case "BOARD_FULL" -> {
-//                    printBoard();
-//                    printStream.write("DRAW!\n".getBytes());
-//                    playing = false; // Game ends
-//                }
-//                case "STONE_PLACED" -> {
-//                    printBoard();
-//                    printStream.write(("STONE PLACED FOR " + currentPlayer.getName() + "\n").getBytes());
-//                    swapCurrentPlayer(); // Next player's turn
-//                }
-//                case "CELL_UNAVAILABLE" -> {
-//                    printStream.write("INVALID. TRY AGAIN\n".getBytes()); // Player must request a different move
-//                }
-//                case "EXIT" -> {
-//                    printStream.write("GAME OVER...\n".getBytes());
-//                    playing = false; // End of game
-//                }
-//            }
-        }
+    public void setCurrentPlayer() {
+        Random random = new Random();
+        boolean heads = random.nextBoolean();
+        if (heads) currentPlayer = player1;
+        else currentPlayer = player2;
     }
 
-    private void swapCurrentPlayer() {
+    public void setCurrentPlayer(Player player) {
+        this.currentPlayer = player;
+    }
+
+    public void swapCurrentPlayer() {
         if (currentPlayer.equals(player1))
             currentPlayer = player2;
         else currentPlayer = player1;
     }
 
-    public void setPlayer1(Player player1) {
-        this.player1 = player1;
+    public void setPlayer1(Player player) {
+        this.player1 = player;
     }
 
-    public void setPlayer2(Player player2) {
-        this.player2 = player2;
+    public void setPlayer2(Player player) {
+        this.player2 = player;
+    }
+
+    public static Main getInstance() {
+        return theInstance;
     }
 
     public Player getPlayer1() {
@@ -101,19 +71,12 @@ public class Main {
         return board;
     }
 
-    public String getGameMode() {
-        return gameMode;
-    }
-
-    public Scanner getScanner() {
-        return scanner;
-    }
-
-    public PrintStream getPrintStream() {
-        return printStream;
+    public GUI getGui() {
+        return gui;
     }
 
     public static void main(String[] args) throws IOException {
-        new Main().init(); // Instantiates UI, prompts to set board
+        theInstance.init();
+        theInstance.run();
     }
 }

@@ -3,7 +3,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**Graphically represents the Board class*/
 public class BoardPanel extends JPanel {
@@ -19,17 +20,22 @@ public class BoardPanel extends JPanel {
             new Color(255, 100, 100, 200),
             new Color(255, 255, 255)
     };
+    private final Color[] greenStonePalette = {
+            new Color(0, 114, 0, 199),
+            new Color(84, 208, 84, 199),
+            new Color(218, 255, 218)
+    };
     private final Color[] whiteStonePalette = {
             new Color(173, 173, 173, 200),
             new Color(234, 234, 234, 200),
             new Color(255, 255, 255)
     };
-    private StoneColor stoneColor;
-    private Player currentPlayer;
     private final int BOARD_PIXEL_LENGTH = 512;
     private final int PIXELS_BTWN_LINES = 32;
+    private final Main MAIN;
     private Board board = Main.getBoard();
     private Graphics brush;
+    private boolean animateHoverStone;
     private int hoverRow = -1;
     private int hoverCol = -1;
 
@@ -41,6 +47,7 @@ public class BoardPanel extends JPanel {
             this.board = new Board();
         else
             this.board = Main.getBoard();
+        this.MAIN = Main.getInstance();
     }
 
     /**Paints the BoardPanel*/
@@ -102,6 +109,7 @@ public class BoardPanel extends JPanel {
         switch (color) {
             case BLUE -> pallet = blueStonePalette;
             case RED -> pallet = redStonePalette;
+            case GREEN -> pallet = greenStonePalette;
         }
 
         // Artfully paints the dark bottom layer of stone
@@ -129,8 +137,8 @@ public class BoardPanel extends JPanel {
 
     /**Paints a stone on an intersection nearest to the mouse*/
     private void paintStoneUnderMouse() {
-        if (hoverRow >= 0 && hoverCol >= 0)
-            paintStone(StoneColor.WHITE, hoverCol, hoverRow);
+        if ((hoverRow >= 0 && hoverCol >= 0) && animateHoverStone)
+            paintStone(MAIN.getCurrentPlayer().getStoneColor(), hoverCol, hoverRow);
         else {
             paintStones();
             hoverRow = -1;
@@ -160,12 +168,12 @@ public class BoardPanel extends JPanel {
         addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                currentPlayer = new HumanPlayer("Bruh", StoneColor.BLUE); // FIXME Delete this line
-
-                // Zero-based conversion into cell[][] in parameters
-                board.evaluateMove(currentPlayer, hoverCol - 1, hoverRow - 1);
-                System.out.println("DEBUG: Clicked:" + hoverRow + " " + hoverCol); //
-                repaint();
+                try {
+                    State result = board.evaluateMove(MAIN.getCurrentPlayer(), hoverCol - 1, hoverRow - 1);
+                    evaluateClickAction(result);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
 
             @Override
@@ -182,15 +190,42 @@ public class BoardPanel extends JPanel {
         });
     }
 
-    public void setStoneColor(StoneColor stoneColor) {
-        this.stoneColor = stoneColor;
+    private void evaluateClickAction(State state) throws InterruptedException {
+        // FIXME: Only works if first player is human
+        // Zero-based conversion into cell[][] in parameters
+        switch (state) {
+            case STONE_PLACED -> {
+                MAIN.swapCurrentPlayer();
+                MAIN.getGui().setHeaderLabelAs("It's " + MAIN.getCurrentPlayer().getName() + "'s turn!");
+
+                // If Computer Player, pause, then place stone
+                if (MAIN.getCurrentPlayer().getStoneColor() == StoneColor.WHITE) {  // If Computer Player
+                    animateHoverStone = false;
+//                    TimeUnit.SECONDS.sleep(1);                                    // Sleep for effect
+                    ComputerPlayer ai = (ComputerPlayer) MAIN.getCurrentPlayer();   // Casting a temporary variable
+                    evaluateClickAction(ai.placeRandomEmptyCell(board));            // Calling this method again
+                    animateHoverStone = true;
+                }
+            }
+            case BOARD_FULL -> {
+                animateHoverStone = false;
+                MAIN.getGui().setHeaderLabelAs("Game Over: Board is Full!");
+            }
+            case PLAYER_WIN -> {
+                animateHoverStone = false;
+                MAIN.getGui().setHeaderLabelAs("Game Over: " + MAIN.getCurrentPlayer().getName() + " wins!");
+                List<Place> winningRow = board.getWinningRow();
+                for (Place place: winningRow) {
+                    paintStone(StoneColor.GREEN, place.x + 1, place.y + 1);
+                }
+            }
+        }
+        System.out.println("DEBUG: Clicked:" + hoverRow + " " + hoverCol); //
+        repaint();
     }
 
-    public void setCurrentPlayer(Player currentPlayer) {
-        this.currentPlayer = currentPlayer;
-    }
-
-    public static void main(String[] args) {
+    public static void MAIN(String[] args) {
+        // For testing
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure the application closes when the frame is closed
         frame.setSize(new Dimension(512,512));

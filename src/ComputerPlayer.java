@@ -6,14 +6,41 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class ComputerPlayer extends Player {
-    private String name;
-    private StoneColor stoneColor;
+    private String[] names = {
+            "Kernel",
+            "Directory",
+            "Daemon",
+            "Shell",
+            "Driver",
+            "Linux",
+            "Unix",
+            "Macintosh",
+            "Windows"
+    };
 
     ComputerPlayer(){
-        super();
+        Random random = new Random();
+        this.setName(names[random.nextInt(0, names.length)]);
+        this.setStoneColor(StoneColor.RED);
     }
+
     ComputerPlayer(String name, StoneColor stoneColor) {
         super("ChatGPT", stoneColor);
+    }
+
+    public State makeSmartMove(Board board) {
+        Random random = new Random();
+        int x = random.nextInt(board.size());
+        int y = random.nextInt(board.size());
+        State state = board.evaluateMove(this, x, y);
+
+        // Loops until an x y is available
+        while (state.equals(State.CELL_UNAVAILABLE)) {
+            x = random.nextInt(board.size());              // Gets new x
+            y = random.nextInt(board.size());              // Gets new y
+            state = board.evaluateMove(this, x, y);  // Tries new x and y
+        }
+        return state; // Stone placed
     }
 
     @Override
@@ -30,7 +57,6 @@ public class ComputerPlayer extends Player {
         while (state.equals(State.CELL_UNAVAILABLE)) {
             x = random.nextInt(board.size());              // Gets new x
             y = random.nextInt(board.size());              // Gets new y
-            printStream.write(("Computer is trying coordinates: " + x + y).getBytes());
             state = board.evaluateMove(this, x, y);  // Tries new x and y
         }
         return state; // Stone placed
@@ -51,7 +77,7 @@ public class ComputerPlayer extends Player {
 //            result = diagonalMove;
 //        } else {
 //            // If no winning or blocking move is found choose a random empty cell
-//            return findRandomEmptyCell(board);
+//            return placeRandomEmptyCell(board);
 //        }
 //        String[] parts = result.split(" ");
 //        int x = Integer.parseInt(parts[0]);
@@ -60,7 +86,7 @@ public class ComputerPlayer extends Player {
 //        return board.validateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
 //    }
 
-    private State findRandomEmptyCell(Board board) {
+    public State placeRandomEmptyCell(Board board) {
         Random random = new Random();
         int x = random.nextInt(board.size());
         int y = random.nextInt(board.size());
