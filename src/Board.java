@@ -310,4 +310,22 @@ public class Board {
     public Player[][] getCells(){
         return cells;
     }
+
+    public void print(){
+        for(int row = 0; row < size; row++){
+            for(int col = 0; col < size; col++){
+                Player player = cells[row][col];
+                if (player == null)
+                    System.out.print(" .");
+                else
+                    System.out.print(" " + player.getStoneColor().getSymbol());
+            }
+            System.out.println();
+        }
+        System.out.println();
+        System.out.println("cellOccupiedCount: " + occupiedCellCount);
+        System.out.println("isFull: " + isFull);
+
+    }
+
 }

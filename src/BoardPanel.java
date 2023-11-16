@@ -4,7 +4,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**Graphically represents the Board class*/
 public class BoardPanel extends JPanel {
@@ -35,7 +34,7 @@ public class BoardPanel extends JPanel {
     private final Main MAIN;
     private Board board = Main.getBoard();
     private Graphics brush;
-    private boolean animateHoverStone;
+    private boolean hoverEffectActive;
     private int hoverRow = -1;
     private int hoverCol = -1;
 
@@ -48,6 +47,7 @@ public class BoardPanel extends JPanel {
         else
             this.board = Main.getBoard();
         this.MAIN = Main.getInstance();
+        hoverEffectActive = true;
     }
 
     /**Paints the BoardPanel*/
@@ -57,7 +57,7 @@ public class BoardPanel extends JPanel {
         brush = g;
         paintBoardBackground();
         paintBoardLines();
-        paintStones();
+        paintStonesFromBoard();
         paintStoneUnderMouse();
     }
 
@@ -85,23 +85,24 @@ public class BoardPanel extends JPanel {
     }
 
     /**Traverses paints stones given by board*/
-    private void paintStones() {
+    private void paintStonesFromBoard() {
         // Traverses Board.cells and paints the players stones
         for (int col = 0; col < board.size(); col++){
             for (int row = 0; row < board.size(); row++) {
-                Player currentPlayer = board.getCells()[col][row];
+                Player currentPlayer = board.getCells()[col][row]; // FIXME: Simplify
                 if (currentPlayer != null) {
-                    // Zero-based conversion from Cell[][]
+                    // Zero-based step-up conversion from array[][] to display grid
                     paintStone(currentPlayer.getStoneColor(), col + 1, row + 1);
                 }
             }
         }
     }
 
-    /**Artfully paints stones using 3-layers of colored ovals. */
+    /**Artfully paint a stone using 3-layers of colored ovals. */
     private void paintStone(StoneColor color, int col, int row) {
-        // Won't print stone if coordinates are out of bounds
-        if ((row < 1 || col < 1) || (row > 15 || col > 15))
+        System.out.println("Painting Stone at: " + col + ", " + row);
+        // If coordinates are out of bounds or stone is present return
+        if (outsideBounds(col, row))
             return;
 
         // Chooses which pallet to use
@@ -137,21 +138,23 @@ public class BoardPanel extends JPanel {
 
     /**Paints a stone on an intersection nearest to the mouse*/
     private void paintStoneUnderMouse() {
-        if ((hoverRow >= 0 && hoverCol >= 0) && animateHoverStone)
-            paintStone(MAIN.getCurrentPlayer().getStoneColor(), hoverCol, hoverRow);
-        else {
-            paintStones();
-            hoverRow = -1;
-            hoverCol = -1;
-        }
+        if (hoverEffectActive && !outsideBounds(hoverCol, hoverRow) && !board.isCellOccupied(hoverCol - 1, hoverRow - 1))
+                paintStone(MAIN.getCurrentPlayer().getStoneColor(), hoverCol, hoverRow); // Then, paint the hover stone
     }
 
-    /**Converts mouse coordinates to nearest row and column index */
+    /** Converts mouse coordinates to the nearest row and column index on the board*/
     private void updateHoverPosition(MouseEvent e) {
-        hoverCol = Math.round((float) ((e.getX() + 16) / PIXELS_BTWN_LINES)); // Pixel(32, 32) / Pixels(32, 32) = Intersection(1,1)
-        hoverRow = Math.round((float) ((e.getY() + 16) / PIXELS_BTWN_LINES)); // Pixel(32, 32) / Pixels(32, 32) = Intersection(1,1)
+        int nearestCol = Math.round((float) ((e.getX() + 16) / PIXELS_BTWN_LINES));
+        int nearestRow = Math.round((float) ((e.getY() + 16) / PIXELS_BTWN_LINES));
+        if (outsideBounds(nearestCol, nearestRow)) {
+            nearestCol = Math.min(Math.max(nearestCol, 1), 15); // Keeps within bounds
+            nearestRow = Math.min(Math.max(nearestRow, 1), 15); // Keeps within bounds
+        }
+        hoverCol = nearestCol;
+        hoverRow = nearestRow;
         repaint();
     }
+
 
     /**Adds mouse hover placement effect to BoardPanel*/
     private void initMouseHoverEffect() {
@@ -169,6 +172,7 @@ public class BoardPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
+                    // Zero-based step-down conversion from  display grid to array[][]
                     State result = board.evaluateMove(MAIN.getCurrentPlayer(), hoverCol - 1, hoverRow - 1);
                     evaluateClickAction(result);
                 } catch (InterruptedException ex) {
@@ -197,22 +201,21 @@ public class BoardPanel extends JPanel {
             case STONE_PLACED -> {
                 MAIN.swapCurrentPlayer();
                 MAIN.getGui().setHeaderLabelAs("It's " + MAIN.getCurrentPlayer().getName() + "'s turn!");
-
-                // If Computer Player, pause, then place stone
-                if (MAIN.getCurrentPlayer().getStoneColor() == StoneColor.WHITE) {  // If Computer Player
-                    animateHoverStone = false;
-//                    TimeUnit.SECONDS.sleep(1);                                    // Sleep for effect
-                    ComputerPlayer ai = (ComputerPlayer) MAIN.getCurrentPlayer();   // Casting a temporary variable
-                    evaluateClickAction(ai.placeRandomEmptyCell(board));            // Calling this method again
-                    animateHoverStone = true;
-                }
+//                // If Computer Player, pause, then place stone
+//                if (MAIN.getCurrentPlayer().getStoneColor() == StoneColor.WHITE) {  // If Computer Player
+//                    hoverEffectActive = false;
+//                    TimeUnit.SECONDS.sleep(1);                              // Sleep for effect
+//                    ComputerPlayer ai = (ComputerPlayer) MAIN.getCurrentPlayer();   // Casting a temporary variable
+//                    evaluateClickAction(ai.placeRandomEmptyCell(board));            // Calling this method again
+//                    hoverEffectActive = true;
+//                }
             }
             case BOARD_FULL -> {
-                animateHoverStone = false;
+                hoverEffectActive = false;
                 MAIN.getGui().setHeaderLabelAs("Game Over: Board is Full!");
             }
             case PLAYER_WIN -> {
-                animateHoverStone = false;
+                hoverEffectActive = false;
                 MAIN.getGui().setHeaderLabelAs("Game Over: " + MAIN.getCurrentPlayer().getName() + " wins!");
                 List<Place> winningRow = board.getWinningRow();
                 for (Place place: winningRow) {
@@ -220,11 +223,14 @@ public class BoardPanel extends JPanel {
                 }
             }
         }
-        System.out.println("DEBUG: Clicked:" + hoverRow + " " + hoverCol); //
         repaint();
     }
 
-    public static void MAIN(String[] args) {
+    public boolean outsideBounds(int col, int row) {
+        return (row < 1 || row > 15) || (col < 1 || col > 15);
+    }
+
+    public static void main(String[] args) {
         // For testing
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure the application closes when the frame is closed

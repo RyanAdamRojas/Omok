@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.Random;
-import java.util.Scanner;
 
 // TODO:
 // 1. Merge GUI functionality with ConsoleUI, then delete GUI.

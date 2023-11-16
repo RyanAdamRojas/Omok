@@ -260,7 +260,6 @@ public class GUI {
 
         jmFile.add(jmiOpen);
         jmFile.add(jmiClose);
-
         jmFile.add(jmiSave);
         jmFile.addSeparator();
         jmFile.add(jmiExit);
