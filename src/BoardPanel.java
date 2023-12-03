@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.util.List;
+import java.util.Random;
 
 /**Graphically represents the Board class*/
 public class BoardPanel extends JPanel {
@@ -31,23 +31,31 @@ public class BoardPanel extends JPanel {
     };
     private final int BOARD_PIXEL_LENGTH = 512;
     private final int PIXELS_BTWN_LINES = 32;
-    private final Main MAIN;
-    private Board board = Main.getBoard();
+    private Player[] players = new Player[3]; // Size three to make less confusing
+    private Player currentPlayer;
+    private Board board;
     private Graphics brush;
-    private boolean hoverEffectActive;
+    private boolean gameActive = true;
+    private GUI gui;
     private int hoverRow = -1;
     private int hoverCol = -1;
 
     BoardPanel() {
+        this(null, new HumanPlayer(), new ComputerPlayer());
+    }
+
+    BoardPanel(GUI gui, Player player1, Player player2) {
         initMouseHoverEffect();
         initMouseClickFunctionality();
         setPreferredSize(new Dimension(BOARD_PIXEL_LENGTH, BOARD_PIXEL_LENGTH));
-        if (Main.getBoard() == null)
-            this.board = new Board();
-        else
-            this.board = Main.getBoard();
-        this.MAIN = Main.getInstance();
-        hoverEffectActive = true;
+        this.board = new Board();
+        this.gui = gui;
+        players[1] = player1;
+        players[2] = player2;
+        setCurrentPlayer();
+        gui.setHeaderLabel(currentPlayer.getName() + " goes first!");
+        if (currentPlayer.isComputer())
+            computerMakeMove();
     }
 
     /**Paints the BoardPanel*/
@@ -100,7 +108,6 @@ public class BoardPanel extends JPanel {
 
     /**Artfully paint a stone using 3-layers of colored ovals. */
     private void paintStone(StoneColor color, int col, int row) {
-        System.out.println("Painting Stone at: " + col + ", " + row);
         // If coordinates are out of bounds or stone is present return
         if (outsideBounds(col, row))
             return;
@@ -138,8 +145,22 @@ public class BoardPanel extends JPanel {
 
     /**Paints a stone on an intersection nearest to the mouse*/
     private void paintStoneUnderMouse() {
-        if (hoverEffectActive && !outsideBounds(hoverCol, hoverRow) && !board.isCellOccupied(hoverCol - 1, hoverRow - 1))
-                paintStone(MAIN.getCurrentPlayer().getStoneColor(), hoverCol, hoverRow); // Then, paint the hover stone
+        if (!currentPlayer.isComputer() &&
+            gameActive &&
+            !outsideBounds(hoverCol, hoverRow) &&
+            !board.isCellOccupied(hoverCol - 1, hoverRow - 1))
+                paintStone(currentPlayer.getStoneColor(), hoverCol, hoverRow); // Then, paint the hover stone
+    }
+
+    /**Adds mouse hover placement effect to BoardPanel*/
+    private void initMouseHoverEffect() {
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!currentPlayer.isComputer() && gameActive)
+                    updateHoverPosition(e);
+            }
+        });
     }
 
     /** Converts mouse coordinates to the nearest row and column index on the board*/
@@ -155,29 +176,14 @@ public class BoardPanel extends JPanel {
         repaint();
     }
 
-
-    /**Adds mouse hover placement effect to BoardPanel*/
-    private void initMouseHoverEffect() {
-        addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                updateHoverPosition(e);
-            }
-        });
-    }
-
     /**Adds mouse click functionality to place stone */
     private void initMouseClickFunctionality() {
         addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                try {
-                    // Zero-based step-down conversion from  display grid to array[][]
-                    State result = board.evaluateMove(MAIN.getCurrentPlayer(), hoverCol - 1, hoverRow - 1);
-                    evaluateClickAction(result);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
+                // Zero-based step-down conversion from  display grid to array[][]
+                if (!currentPlayer.isComputer() && gameActive)
+                    evaluateGameState(board.evaluateMove(currentPlayer, hoverCol - 1, hoverRow - 1));
             }
 
             @Override
@@ -194,40 +200,52 @@ public class BoardPanel extends JPanel {
         });
     }
 
-    private void evaluateClickAction(State state) throws InterruptedException {
-        // FIXME: Only works if first player is human
-        // Zero-based conversion into cell[][] in parameters
+    private void evaluateGameState(State state) {
         switch (state) {
             case STONE_PLACED -> {
-                MAIN.swapCurrentPlayer();
-                MAIN.getGui().setHeaderLabelAs("It's " + MAIN.getCurrentPlayer().getName() + "'s turn!");
-//                // If Computer Player, pause, then place stone
-//                if (MAIN.getCurrentPlayer().getStoneColor() == StoneColor.WHITE) {  // If Computer Player
-//                    hoverEffectActive = false;
-//                    TimeUnit.SECONDS.sleep(1);                              // Sleep for effect
-//                    ComputerPlayer ai = (ComputerPlayer) MAIN.getCurrentPlayer();   // Casting a temporary variable
-//                    evaluateClickAction(ai.placeRandomEmptyCell(board));            // Calling this method again
-//                    hoverEffectActive = true;
-//                }
+                swapCurrentPlayer();
+                gui.setHeaderLabel("It's " + currentPlayer.getName() + "'s turn");
+                if (currentPlayer.isComputer())
+                    computerMakeMove();
             }
             case BOARD_FULL -> {
-                hoverEffectActive = false;
-                MAIN.getGui().setHeaderLabelAs("Game Over: Board is Full!");
+                gameActive = false;
+                gui.setHeaderLabel("Game Over: Board is full");
+                // Disable further actions or add restart option
             }
             case PLAYER_WIN -> {
-                hoverEffectActive = false;
-                MAIN.getGui().setHeaderLabelAs("Game Over: " + MAIN.getCurrentPlayer().getName() + " wins!");
-                List<Place> winningRow = board.getWinningRow();
-                for (Place place: winningRow) {
-                    paintStone(StoneColor.GREEN, place.x + 1, place.y + 1);
-                }
+                gameActive = false;
+                gui.setHeaderLabel("Game Over: " + currentPlayer.getName() + " wins!");
+                // Highlight winning row and disable further actions
             }
         }
         repaint();
     }
 
-    public boolean outsideBounds(int col, int row) {
+    private boolean outsideBounds(int col, int row) {
         return (row < 1 || row > 15) || (col < 1 || col > 15);
+    }
+
+    private void swapCurrentPlayer() {
+        currentPlayer = currentPlayer.equals(players[1]) ? players[2] : players[1];
+    }
+
+    private void setCurrentPlayer() {
+        Random random = new Random();
+        currentPlayer = random.nextBoolean() ? players[1] : players[2];
+    }
+
+    private void computerMakeMove() {
+        // Disable hover effect and UI interaction
+
+        // Using Timer pause for a moment while the computer "thinks"
+        new Timer(1500, ae -> {
+            if (currentPlayer.isComputer()) { // Checks again because
+                ComputerPlayer ai = (ComputerPlayer) currentPlayer;
+                evaluateGameState(ai.placeRandomEmptyCell(board));
+                repaint();
+            }
+        }).start();
     }
 
     public static void main(String[] args) {
@@ -235,10 +253,9 @@ public class BoardPanel extends JPanel {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure the application closes when the frame is closed
         frame.setSize(new Dimension(512,512));
-        frame.add(new BoardPanel()); // Adds the BoardPanel before calling pack
-        frame.setResizable(false);  // Call setResizable before pack()
-        frame.pack();               // Pack the frame after adding components
-        frame.setVisible(true);     // Make the frame visible after packing
+        frame.add(new BoardPanel());    // Adds the BoardPanel before calling pack
+        frame.setResizable(false);      // Call setResizable before pack()
+        frame.pack();                   // Pack the frame after adding components
+        frame.setVisible(true);         // Make the frame visible after packing
     }
-
 }

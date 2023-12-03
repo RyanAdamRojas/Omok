@@ -6,10 +6,10 @@ import java.util.Scanner;
 public class HumanPlayer extends Player {
 
     HumanPlayer() {
-        super();
+        this("Name not set", StoneColor.BLUE);
     }
     HumanPlayer(String name, StoneColor stoneColor) {
-        super(name, stoneColor);
+        super(name, stoneColor, false);
     }
 
     @Override

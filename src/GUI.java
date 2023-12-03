@@ -8,23 +8,26 @@ import java.awt.event.InputEvent;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.Color;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class GUI {
-    private final Main MAIN;
     private JFrame frame = new JFrame("Omok");
     private JPanel masterPanel = new JPanel();
-    private JPanel header = new JPanel();
-    private JPanel body = new JPanel();
-    private JPanel footer = new JPanel();
-    private JLabel headerLabel = new JLabel();
+    private JPanel topPanel = new JPanel();
+    private JPanel middlePanel = new JPanel();
+    private JPanel bottomPanel = new JPanel();
+    private JLabel topPanelLabel = new JLabel();
     private final Font headerFont = new Font("SF Text", Font.BOLD, 24);
-    private final Font largeBodyFont = new Font("SF Text", Font.BOLD, 16);
+    private final Font subHeaderFont = new Font("SF Text", Font.BOLD, 16);
     private final Font bodyFont = new Font("SF Text", Font.PLAIN, 12);
-    private Player player1;
-    private Player player2;
+    private Player tempP1, tempP2;
+    private BoardPanel boardPanel;
 
-    GUI(Main MAIN) {
-        this.MAIN = MAIN;
+    GUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(512, 700)); // DO NOT CHANGE
         frame.setResizable(false);
@@ -47,15 +50,15 @@ public class GUI {
         // Creates title screen components
         JButton goToSelectionScreenButton = createJButton("Start");
         goToSelectionScreenButton.addActionListener(e -> showSelectionScreen());
-        setHeaderLabelAs("Welcome To");
+        setHeaderLabel("Welcome To");
         JLabel title = new JLabel("OMOK");
         Font titleFont =  new Font("SF Text", Font.BOLD, 100);
         title.setFont(titleFont);
 
         // Adding components to panels
-        header.add(headerLabel);
-        body.add(title, BorderLayout.CENTER);
-        footer.add(goToSelectionScreenButton);
+        topPanel.add(topPanelLabel);
+        middlePanel.add(title, BorderLayout.CENTER);
+        bottomPanel.add(goToSelectionScreenButton);
 
         refreshMasterPanel();
         refreshGUI();
@@ -65,8 +68,8 @@ public class GUI {
         // Clears previous content
         clearGUI();
 
-        // Sets header label
-        setHeaderLabelAs("Lets Set Things Up");
+        // Sets topPanel label
+        setHeaderLabel("Lets Set Things Up");
 
         // Creates setOpponents panel
         JRadioButton humanButton = createJRadioButton("Human");
@@ -79,14 +82,14 @@ public class GUI {
         JPanel setNamePanel1 = createSetNamePanel("Player 1", name1TextField); // Not visible by default
         JPanel setNamePanel2 = createSetNamePanel("Player 2", name2TextField); // Not visible by default
 
-        // Creates footer's buttons
+        // Creates bottomPanel's buttons
         JButton goToGameScreenButton = createJButton("Play");
         JButton backToTitleButton = createJButton("Back");
 
         // Creates button actions
         humanButton.addActionListener(e -> {
-            player2 = new HumanPlayer();    // Creates new player
-            player2.setStoneColor(StoneColor.RED);
+            tempP2 = new HumanPlayer();    // Creates new player
+            tempP2.setStoneColor(StoneColor.RED);
             setNamePanel1.setVisible(true); // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
 
@@ -97,58 +100,55 @@ public class GUI {
         });
 
         computerButton.addActionListener(e -> {
-            player2 = new ComputerPlayer(); // Creates new player
-            player2.setStoneColor(StoneColor.WHITE);
+            tempP2 = new ComputerPlayer(); // Creates new player
+            tempP2.setStoneColor(StoneColor.WHITE);
             setNamePanel1.setVisible(true); // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
 
             if (humanButton.isSelected())
                 humanButton.setSelected(false);  // Deselects other button
 
-            name2TextField.setText(player2.getName()); // Sets text as computers random name
+            name2TextField.setText(tempP2.getName()); // Sets text as computers random name
         });
 
         backToTitleButton.addActionListener(e -> showTitleScreen());
 
         goToGameScreenButton.addActionListener(e -> {
             if (humanButton.isSelected() || computerButton.isSelected()) {
-                player1 = new HumanPlayer();
-                player1.setStoneColor(StoneColor.BLUE);
+                tempP1 = new HumanPlayer();
+                tempP1.setStoneColor(StoneColor.BLUE);
 
                 // Sets Up Players in Main
-                player1.setName(name1TextField.getText());
-                player2.setName(name2TextField.getText());
-                if (player1.getName().equals("Type here"))
-                    player1.setName("Player 1");
-                if (player2.getName().equals("Type here"))
-                    player2.setName("Player 2");
-                MAIN.setPlayer1(player1);
-                MAIN.setPlayer2(player2);
-                MAIN.setCurrentPlayer(player1);
+                tempP1.setName(name1TextField.getText());
+                tempP2.setName(name2TextField.getText());
+                if (tempP1.getName().equals("Type here"))
+                    tempP1.setName("Player 1");
+                if (tempP2.getName().equals("Type here"))
+                    tempP2.setName("Player 2");
                 showGameSessionScreen();
             }
             else {
-                setHeaderLabelAs("Choose an opponent first!");
+                setHeaderLabel("Choose an opponent first!");
             }
         });
 
-        // Setting up the header, body, and footer (HBF) panels
-        header.add(headerLabel, BorderLayout.CENTER);
+        // Setting up the topPanel, middlePanel, and bottomPanel (HBF) panels
+        topPanel.add(topPanelLabel, BorderLayout.CENTER);
         GridLayout gridLayout = new GridLayout(7,1);
         gridLayout.setVgap(5);
-        body.setLayout(gridLayout);
-        body.add(setOpponentPanel);
-        body.add(setNamePanel1);
-        body.add(setNamePanel2);
-        footer.add(backToTitleButton);
-        footer.add(goToGameScreenButton);
+        middlePanel.setLayout(gridLayout);
+        middlePanel.add(setOpponentPanel);
+        middlePanel.add(setNamePanel1);
+        middlePanel.add(setNamePanel2);
+        bottomPanel.add(backToTitleButton);
+        bottomPanel.add(goToGameScreenButton);
 
         // Adds the HBF panels to the masterPanel
-        masterPanel.add(header, BorderLayout.NORTH);
+        masterPanel.add(topPanel, BorderLayout.NORTH);
         masterPanel.add(new JLabel("                      "), BorderLayout.EAST); // Crude buffer
-        masterPanel.add(body, BorderLayout.CENTER);
+        masterPanel.add(middlePanel, BorderLayout.CENTER);
         masterPanel.add(new JLabel("                      "), BorderLayout.WEST); // Crude buffer
-        masterPanel.add(footer, BorderLayout.SOUTH);
+        masterPanel.add(bottomPanel, BorderLayout.SOUTH);
         refreshGUI();
     }
 
@@ -156,27 +156,41 @@ public class GUI {
         // Clears previous content
         clearGUI();
 
+        // Sets up the board panel
+        BoardPanel boardPanel;
+        if (tempP1 == null || tempP2 == null)
+            boardPanel = new BoardPanel(this, new HumanPlayer("John", StoneColor.BLUE), new HumanPlayer("Server", StoneColor.RED));
+        else
+            boardPanel = new BoardPanel(this, tempP1, tempP2);
+
+
         // Creates quit button
         JButton quitGameButton = new JButton("Quit");
-        quitGameButton.addActionListener(e -> showSelectionScreen()); // TODO Add "are you sure" prompt
-
-        // Set up menu bar
-        frame.add(createJMenuBar(), BorderLayout.NORTH);
+        quitGameButton.addActionListener(e -> {
+            int response = JOptionPane.showConfirmDialog(null,
+                    "Are you sure you want to quit?",
+                    "Confirm",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    new ImageIcon("res/Images/exit.png"));
+            if (response == JOptionPane.YES_OPTION)
+                showTitleScreen();
+        });
 
         // Set up Master Panel
-        setHeaderLabelAs(MAIN.getCurrentPlayer().getName() + " goes first!");
-        header.add(headerLabel);
-        body.setLayout(new BorderLayout());
-        body.add(new BoardPanel(), BorderLayout.CENTER);
-        footer.add(quitGameButton);
+        topPanel.add(topPanelLabel);
+        middlePanel.setLayout(new BorderLayout());
+        middlePanel.add(boardPanel, BorderLayout.CENTER);
+        bottomPanel.add(quitGameButton);
+        bottomPanel.add(createToolBar(), BorderLayout.NORTH);
         refreshMasterPanel();
         refreshGUI();
     }
 
     private void refreshMasterPanel() {
-        masterPanel.add(header, BorderLayout.NORTH);
-        masterPanel.add(body, BorderLayout.CENTER);
-        masterPanel.add(footer, BorderLayout.SOUTH);
+        masterPanel.add(topPanel, BorderLayout.NORTH);
+        masterPanel.add(middlePanel, BorderLayout.CENTER);
+        masterPanel.add(bottomPanel, BorderLayout.SOUTH);
     }
 
     private void refreshGUI() {
@@ -185,16 +199,16 @@ public class GUI {
     }
 
     private void clearGUI() {
-        header.removeAll();
-        body.removeAll();
-        footer.removeAll();
+        topPanel.removeAll();
+        middlePanel.removeAll();
+        bottomPanel.removeAll();
         masterPanel.removeAll();
     }
 
-    public void setHeaderLabelAs(String text) {
-        headerLabel.setText(text);
-        headerLabel.setFont(headerFont);
-        header.repaint();
+    public void setHeaderLabel(String text) {
+        topPanelLabel.setText(text);
+        topPanelLabel.setFont(headerFont);
+        topPanel.repaint();
     }
 
     private JPanel createSetOppPanel(JRadioButton humanButton, JRadioButton computerButton) {
@@ -231,75 +245,74 @@ public class GUI {
     }
 
     private JMenuBar createJMenuBar() {
-        // This methods URL: https://www.demo2s.com/java/java-swing-menu-items-mnemonics-and-accelerators.html#google_vignette
-        // Nov 12, 2023
+        JMenuBar menuBar = new JMenuBar();
 
-        // Create a label that will display the menu selection.
-        JLabel jlab = new JLabel();
+        // Create a menu
+        JMenu menu = new JMenu("File");
+        menu.setMnemonic(KeyEvent.VK_F); // Mnemonic 'F' for 'File'
 
-        // Create the menu bar.
-        JMenuBar jmb = new JMenuBar();
-        JMenu jmFile = new JMenu("File");
-        jmFile.setMnemonic(KeyEvent.VK_F);
+        // Create a menu item with an icon, mnemonic, and accelerator
+        JMenuItem menuItem = new JMenuItem("Open", new ImageIcon("path/to/open_icon.png"));
+        menuItem.setMnemonic(KeyEvent.VK_O); // Mnemonic 'O' for 'Open'
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+        menu.add(menuItem);
 
-        JMenuItem jmiOpen = new JMenuItem("Open", KeyEvent.VK_O);
-        jmiOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-                InputEvent.CTRL_DOWN_MASK));
+        // Add the menu to the menu bar
+        menuBar.add(menu);
 
-        JMenuItem jmiClose = new JMenuItem("Close", KeyEvent.VK_C);
-        jmiClose.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-                InputEvent.CTRL_DOWN_MASK));
+        return menuBar;
+    }
 
-        JMenuItem jmiSave = new JMenuItem("Save", KeyEvent.VK_S);
-        jmiSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                InputEvent.CTRL_DOWN_MASK));
+    public JToolBar createToolBar() {
+        JToolBar toolBar = new JToolBar();
 
-        JMenuItem jmiExit = new JMenuItem("Exit", KeyEvent.VK_E);
-        jmiExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
-                InputEvent.CTRL_DOWN_MASK));
+        ImageIcon icon1 = new ImageIcon("res/Images/play.png");
+        JButton button1 = new JButton(resizeIcon(icon1, 24, 24));
+        button1.setToolTipText("Play");
+        toolBar.add(button1);
 
-        jmFile.add(jmiOpen);
-        jmFile.add(jmiClose);
-        jmFile.add(jmiSave);
-        jmFile.addSeparator();
-        jmFile.add(jmiExit);
-        jmb.add(jmFile);
+        ImageIcon icon2 = new ImageIcon("res/Images/online.png");
+        JButton button2 = new JButton(resizeIcon(icon2, 24, 24));
+        button2.setToolTipText("Connect");
+        button2.addActionListener(al -> {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request =
+                    HttpRequest.newBuilder()
+                            .uri(URI.create("http://omok.atwebpages.com/info/"))
+                            .GET()
+                            .build();
 
-        // Create the Options menu.
-        JMenu jmOptions = new JMenu("Options");
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(HttpResponse::body)
+                    .thenAccept(System.out::println)
+                    .join();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                System.out.println("Response status code: " + response.statusCode());
+                System.out.println("Response body: " + response.body());
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        toolBar.add(button2);
 
-        // Create the Colors submenu.
-        JMenu jmColors = new JMenu("Colors");
-        JMenuItem jmiRed = new JMenuItem("Red");
-        JMenuItem jmiGreen = new JMenuItem("Green");
-        JMenuItem jmiBlue = new JMenuItem("Blue");
-        jmColors.add(jmiRed);
-        jmColors.add(jmiGreen);
-        jmColors.add(jmiBlue);
-        jmOptions.add(jmColors);
+        ImageIcon icon3 = new ImageIcon("res/Images/power.png");
+        JButton button3 = new JButton(resizeIcon(icon3, 24, 24));
+        button3.setToolTipText("Cheat mode");
+        toolBar.add(button3);
 
-        // Create the Priority submenu.
-        JMenu jmPriority = new JMenu("Priority");
-        JMenuItem jmiHigh = new JMenuItem("High");
-        JMenuItem jmiLow = new JMenuItem("Low");
-        jmPriority.add(jmiHigh);
-        jmPriority.add(jmiLow);
-        jmOptions.add(jmPriority);
+        ImageIcon icon4 = new ImageIcon("res/Images/settings.png");
+        JButton button4 = new JButton(resizeIcon(icon4, 24, 24));
+        button4.setToolTipText("Settings");
+        toolBar.add(button4);
 
-        // Create the Reset menu item.
-        JMenuItem jmiReset = new JMenuItem("Reset");
-        jmOptions.addSeparator();
-        jmOptions.add(jmiReset);
-        // Finally, add the entire options menu to
-        // the menu bar
-        jmb.add(jmOptions);
+        return toolBar;
+    }
 
-        // Create the Help menu.
-        JMenu jmHelp = new JMenu("Help");
-        JMenuItem jmiAbout = new JMenuItem("About");
-        jmHelp.add(jmiAbout);
-        jmb.add(jmHelp);
-        return jmb;
+    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
+        Image image = icon.getImage();
+        Image resizedImage = image.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH);
+        return new ImageIcon(resizedImage);
     }
 
     private JButton createJButton(String text) {
@@ -309,15 +322,9 @@ public class GUI {
         return button;
     }
 
-    private JLabel createBodyLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(bodyFont);
-        return label;
-    }
-
     private JLabel createLargeBodyLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(largeBodyFont);
+        label.setFont(subHeaderFont);
         return label;
     }
 

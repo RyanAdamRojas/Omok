@@ -15,17 +15,50 @@ public class ComputerPlayer extends Player {
             "Linux",
             "Unix",
             "Macintosh",
-            "Windows"
+            "Windows",
+            "Byte",
+            "Pixel",
+            "Cache",
+            "Widget",
+            "Gadget",
+            "Router",
+            "Compiler",
+            "Cyborg",
+            "Digital",
+            "Ethernet",
+            "Firewall",
+            "Gateway",
+            "Hyperlink",
+            "Intranet",
+            "Java",
+            "Kilobyte",
+            "Logic",
+            "Megabyte",
+            "Neural",
+            "Opcode",
+            "Protocol",
+            "Quantum",
+            "RAM",
+            "Syntax",
+            "Terabyte",
+            "Uplink",
+            "Virtual",
+            "Webmaster",
+            "Xenon",
+            "Yottabyte",
+            "Zettabyte"
     };
+
 
     ComputerPlayer(){
         Random random = new Random();
         this.setName(names[random.nextInt(0, names.length)]);
         this.setStoneColor(StoneColor.RED);
+        this.setIsComputer(true);
     }
 
     ComputerPlayer(String name, StoneColor stoneColor) {
-        super("ChatGPT", stoneColor);
+        super("ChatGPT", stoneColor, true);
     }
 
     public State makeSmartMove(Board board) {

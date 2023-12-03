@@ -7,15 +7,17 @@ import java.util.Scanner;
 public abstract class Player {
     private String name;
     private StoneColor stoneColor;
+    private Boolean isComputer;
 
     Player(){
         name = null;
         stoneColor = null;
     }
 
-    Player(String name, StoneColor stoneColor){
+    Player(String name, StoneColor stoneColor, Boolean isComputer){
         this.name = name;
         this.stoneColor = stoneColor;
+        this.isComputer = isComputer;
     }
 
     //Every abstract class must have at least one abstract method
@@ -25,6 +27,15 @@ public abstract class Player {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void setStoneColor(StoneColor stoneColor) {
+        this.stoneColor = stoneColor;
+    }
+
+    public void setIsComputer(Boolean isComputer) {
+        this.isComputer = isComputer;
+    }
+
     public String getName() {
         return name;
     }
@@ -33,8 +44,8 @@ public abstract class Player {
         return this.stoneColor;
     }
 
-    public void setStoneColor(StoneColor stoneColor) {
-        this.stoneColor = stoneColor;
+    public Boolean isComputer() {
+        return isComputer;
     }
 
     @Override
