@@ -129,7 +129,7 @@ public class GUI {
         });
 
         randomizedServerButton.addActionListener(e -> {
-            setHeaderLabel("Human vs Machine");
+            setHeaderLabel("Human vs Not-So-Smart Machine");
             if (!randomizedServerButton.isSelected())
                 setHeaderLabel("Choose Your Opponent");
             playerTwo = new ComputerPlayer();               // Creates new ComputerPlayer

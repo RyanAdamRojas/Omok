@@ -6,52 +6,52 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class ComputerPlayer extends Player {
-    private String[] names = {
-            "Kernel",
-            "Directory",
-            "Daemon",
-            "Shell",
-            "Driver",
-            "Linux",
-            "Unix",
-            "Macintosh",
-            "Windows",
-            "Byte",
-            "Pixel",
-            "Cache",
-            "Widget",
-            "Gadget",
-            "Router",
-            "Compiler",
-            "Cyborg",
-            "Digital",
-            "Ethernet",
-            "Firewall",
-            "Gateway",
-            "Hyperlink",
-            "Intranet",
-            "Java",
-            "Kilobyte",
-            "Logic",
-            "Megabyte",
-            "Neural",
-            "Opcode",
-            "Protocol",
-            "Quantum",
-            "RAM",
-            "Syntax",
-            "Terabyte",
-            "Uplink",
-            "Virtual",
-            "Webmaster",
-            "Xenon",
-            "Yottabyte",
-            "Zettabyte"
-    };
 
 
-    ComputerPlayer(){
+    ComputerPlayer() {
         Random random = new Random();
+        String[] names = {
+                "Kernel",
+                "Directory",
+                "Daemon",
+                "Shell",
+                "Driver",
+                "Linux",
+                "Unix",
+                "Macintosh",
+                "Windows",
+                "Byte",
+                "Pixel",
+                "Cache",
+                "Widget",
+                "Gadget",
+                "Router",
+                "Compiler",
+                "Cyborg",
+                "Digital",
+                "Ethernet",
+                "Firewall",
+                "Gateway",
+                "Hyperlink",
+                "Intranet",
+                "Java",
+                "Kilobyte",
+                "Logic",
+                "Megabyte",
+                "Neural",
+                "Opcode",
+                "Protocol",
+                "Quantum",
+                "RAM",
+                "Syntax",
+                "Terabyte",
+                "Uplink",
+                "Virtual",
+                "Webmaster",
+                "Xenon",
+                "Yottabyte",
+                "Zettabyte"
+        };
         this.setName(names[random.nextInt(0, names.length)]);
         this.setStoneColor(StoneColor.RED);
         this.setIsComputer(true);
@@ -95,30 +95,6 @@ public class ComputerPlayer extends Player {
         return state; // Stone placed
     }
 
-//    public String requestMove(Board board){
-//        // Check horizontally, vertically, and diagonally
-//        String horizontalMove = findWinningMoveHorizontally(board, getSymbol());
-//        String verticalMove = findWinningMoveVertically(board, getSymbol());
-//        String diagonalMove = findWinningMoveDiagonal1(board, getSymbol());
-//        String result;
-//        // Prioritize winning moves, then blocking opponent, then any other move logic
-//        if (horizontalMove != null) {
-//            result = horizontalMove;
-//        } else if (verticalMove != null) {
-//            result = verticalMove;
-//        } else if (diagonalMove != null) {
-//            result = diagonalMove;
-//        } else {
-//            // If no winning or blocking move is found choose a random empty cell
-//            return placeRandomEmptyCell(board);
-//        }
-//        String[] parts = result.split(" ");
-//        int x = Integer.parseInt(parts[0]);
-//        int y = Integer.parseInt(parts[1]);
-//
-//        return board.validateMove(this.getSymbol(), x, y);//Calls validateMove method from Board class to see if x and y values are valid move
-//    }
-
     public State placeRandomEmptyCell(Board board) {
         Random random = new Random();
         int x = random.nextInt(board.size());
@@ -130,79 +106,5 @@ public class ComputerPlayer extends Player {
             state = board.evaluateMove(this, x, y);  // Tries new x and y
         }
         return state; // Stone placed
-    }
-
-    private String findWinningMoveDiagonal1(Board board, String stoneColor) {
-        int boardSize = board.size();
-        Player[][] cells = board.getCells();
-
-        for (int row = 0; row < boardSize - 4; row++) {
-            for (int col = 0; col < boardSize - 4; col++) {
-                boolean isPotentialWinningMove = true;
-                for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(this)) {
-                        isPotentialWinningMove = false;
-                        break;
-                    }
-                }
-
-                if (isPotentialWinningMove) {
-                    // This is a winning move in the diagonal direction
-                    // Return the coordinates as a string, e.g., "x y"
-                    return (row + 4) + " " + (col + 4);
-                }
-            }
-        }
-
-        return null; // No winning move found
-    }
-    private String findWinningMoveHorizontally(Board board, String stoneColor) {
-        int boardSize = board.size();
-        Player[][] cells = board.getCells();
-
-        for (int row = 0; row < boardSize; row++) {
-            for (int col = 0; col < boardSize - 4; col++) {
-                boolean isPotentialWinningMove = true;
-                for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(this)) {
-                        isPotentialWinningMove = false;
-                        break;
-                    }
-                }
-
-                if (isPotentialWinningMove) {
-                    // This is a winning move horizontally
-                    // Return the coordinates as a string, "x y"
-                    return row + " " + col;
-                }
-            }
-        }
-
-        return null; // No winning move found
-    }
-
-    private String findWinningMoveVertically(Board board, String stoneColor) {
-        int boardSize = board.size();
-        Player[][] cells = board.getCells();
-
-        for (int col = 0; col < boardSize; col++) {
-            for (int row = 0; row < boardSize - 4; row++) {
-                boolean isPotentialWinningMove = true;
-                for (int k = 0; k < 5; k++) {
-                    if (cells[row][col+k] == null || !cells[row][col+k].equals(this)) {
-                        isPotentialWinningMove = false;
-                        break;
-                    }
-                }
-
-                if (isPotentialWinningMove) {
-                    // This is a winning move vertically
-                    // Return the coordinates as a string, "x y"
-                    return (row + 4) + " " + col;
-                }
-            }
-        }
-
-        return null; // No winning move found
     }
 }

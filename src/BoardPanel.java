@@ -7,8 +7,10 @@ import java.util.Random;
 
 /**Graphically represents the Board class*/
 public class BoardPanel extends JPanel {
-    private final Color boardColor = new Color(255, 205, 145);
-    private final Color boardLineColor = new Color(166, 121, 55);
+    private final Color[] boardPalette = {
+            new Color(255, 205, 145),
+            new Color(166, 121, 55)
+    };
     private final Color[] blueStonePalette = {
             new Color(  0,  10, 212 ),
             new Color( 63, 163, 255),
@@ -84,13 +86,13 @@ public class BoardPanel extends JPanel {
 
     /**Paints precise pixel-based rectangle*/
     private void paintBoardBackground() {
-        brush.setColor(boardColor);
+        brush.setColor(boardPalette[0]);
         brush.fillRect(0, 0, BOARD_PIXEL_LENGTH, BOARD_PIXEL_LENGTH);
     }
 
     /**Paints precise pixel-based lines*/
     private void paintBoardLines() {
-        brush.setColor(boardLineColor);
+        brush.setColor(boardPalette[1]);
 
         // Draws horizontal grid lines
         for(int line = 0; line < board.size() + 2; line++){
