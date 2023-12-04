@@ -314,7 +314,7 @@ public class Board {
     public void print(){
         for(int row = 0; row < size; row++){
             for(int col = 0; col < size; col++){
-                Player player = cells[row][col];
+                Player player = cells[col][row];
                 if (player == null)
                     System.out.print(" .");
                 else
@@ -323,8 +323,6 @@ public class Board {
             System.out.println();
         }
         System.out.println();
-        System.out.println("cellOccupiedCount: " + occupiedCellCount);
-        System.out.println("isFull: " + isFull);
 
     }
 

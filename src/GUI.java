@@ -4,15 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.Color;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 public class GUI {
     private JFrame frame = new JFrame("Omok");
@@ -24,8 +16,9 @@ public class GUI {
     private final Font headerFont = new Font("SF Text", Font.BOLD, 24);
     private final Font subHeaderFont = new Font("SF Text", Font.BOLD, 16);
     private final Font bodyFont = new Font("SF Text", Font.PLAIN, 12);
-    private Player tempP1, tempP2;
-    private BoardPanel boardPanel;
+    private Player playerOne, playerTwo;
+    private String path;
+    public static JavaClient javaClient = new JavaClient();
 
     GUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -82,8 +75,8 @@ public class GUI {
         // Creates setName panel
         JTextField name1TextField = createJTextField("Type here");
         JTextField name2TextField = createJTextField("Type here");
-        JPanel setNamePanel1 = createSetNamePanel("Player 1", name1TextField); // Not visible by default
-        JPanel setNamePanel2 = createSetNamePanel("Player 2", name2TextField); // Not visible by default
+        JPanel setNamePanel1 = createSetNamePanel("Player One", name1TextField); // Not visible by default
+        JPanel setNamePanel2 = createSetNamePanel("Player Two", name2TextField); // Not visible by default
 
         // Creates bottomPanel's buttons
         JButton goToGameScreenButton = createJButton("Play");
@@ -94,77 +87,82 @@ public class GUI {
             setHeaderLabel("Human vs Human");
             if (!computerButton.isSelected())
                 setHeaderLabel("Choose Your Opponent");
-            tempP2 = new HumanPlayer();                 // Creates new player
-            tempP2.setStoneColor(StoneColor.RED);
-            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
+            playerTwo = new HumanPlayer();                  // Creates new player
+            playerTwo.setStoneColor(StoneColor.RED);
+            setNamePanel1.setVisible(true);                 // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
-            name2TextField.setText("Type here");        // Resets player 2 textField
-            computerButton.setSelected(false);          // Deselects other radioButtons
+            name2TextField.setText("Type here");            // Resets player 2 textField
+            computerButton.setSelected(false);              // Deselects other radioButtons
             smartServerButton.setSelected(false);
             randomizedServerButton.setSelected(false);
+            path = null;
         });
 
         computerButton.addActionListener(e -> {
             setHeaderLabel("Human vs Machine");
             if (!computerButton.isSelected())
                 setHeaderLabel("Choose Your Opponent");
-            tempP2 = new ComputerPlayer();              // Creates new ComputerPlayer
-            tempP2.setStoneColor(StoneColor.WHITE);
-            humanButton.setSelected(false);             // Deselects other radioButtons
+            playerTwo = new ComputerPlayer();               // Creates new ComputerPlayer
+            playerTwo.setStoneColor(StoneColor.WHITE);
+            humanButton.setSelected(false);                 // Deselects other radioButtons
             smartServerButton.setSelected(false);
             randomizedServerButton.setSelected(false);
-            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
+            setNamePanel1.setVisible(true);                 // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
-            name2TextField.setText(tempP2.getName());   // Sets textField as computers name
+            name2TextField.setText(playerTwo.getName());    // Sets textField as computers name
+            path = null;
         });
 
         smartServerButton.addActionListener(e -> {
             setHeaderLabel("Human vs Smart Machine");
             if (!smartServerButton.isSelected())
                 setHeaderLabel("Choose Your Opponent");
-            tempP2 = new ComputerPlayer();              // Creates new ComputerPlayer
-            tempP2.setStoneColor(StoneColor.WHITE);
-            humanButton.setSelected(false);             // Deselects other radioButtons
+            playerTwo = new ComputerPlayer();               // Creates new ComputerPlayer
+            playerTwo.setStoneColor(StoneColor.WHITE);
+            humanButton.setSelected(false);                 // Deselects other radioButtons
             computerButton.setSelected(false);
             randomizedServerButton.setSelected(false);
-            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
+            setNamePanel1.setVisible(true);                 // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
-            name2TextField.setText(tempP2.getName());   // Sets textField as computers name
-            connectToServer("new/?strategy=smart");
+            name2TextField.setText(playerTwo.getName());    // Sets textField as computers name
+            path = "new/?strategy=smart";
         });
 
         randomizedServerButton.addActionListener(e -> {
             setHeaderLabel("Human vs Machine");
             if (!randomizedServerButton.isSelected())
                 setHeaderLabel("Choose Your Opponent");
-            tempP2 = new ComputerPlayer();              // Creates new ComputerPlayer
-            tempP2.setStoneColor(StoneColor.WHITE);
-            humanButton.setSelected(false);             // Deselects other radioButtons
+            playerTwo = new ComputerPlayer();               // Creates new ComputerPlayer
+            playerTwo.setStoneColor(StoneColor.WHITE);
+            humanButton.setSelected(false);                 // Deselects other radioButtons
             computerButton.setSelected(false);
             smartServerButton.setSelected(false);
-            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
+            setNamePanel1.setVisible(true);                 // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
-            name2TextField.setText(tempP2.getName());   // Sets textField as computers name
-            connectToServer("new/?strategy=random");
+            name2TextField.setText(playerTwo.getName());    // Sets textField as computers name
+            path = "new/?strategy=random";
         });
 
         backToTitleButton.addActionListener(e -> showTitleScreen());
 
         goToGameScreenButton.addActionListener(e -> {
-            if (humanButton.isSelected() || computerButton.isSelected()) {
-                tempP1 = new HumanPlayer();
-                tempP1.setStoneColor(StoneColor.BLUE);
+            if (humanButton.isSelected() ||
+                computerButton.isSelected() ||
+                smartServerButton.isSelected() ||
+                randomizedServerButton.isSelected())
+            {
+                playerOne = new HumanPlayer();
+                playerOne.setStoneColor(StoneColor.BLUE);
 
                 // Sets Up Players in Main
-                tempP1.setName(name1TextField.getText());
-                tempP2.setName(name2TextField.getText());
-                if (tempP1.getName().equals("Type here"))
-                    tempP1.setName("Player 1");
-                if (tempP2.getName().equals("Type here"))
-                    tempP2.setName("Player 2");
+                playerOne.setName(name1TextField.getText());
+                playerTwo.setName(name2TextField.getText());
+                if (playerOne.getName().equals("Type here"))
+                    playerOne.setName("Player-One");
+                if (playerTwo.getName().equals("Type here"))
+                    playerTwo.setName("Player-Two");
                 showGameSessionScreen();
-            }
-            else {
+            } else {
                 setHeaderLabel("Choose an opponent first!");
             }
         });
@@ -182,9 +180,9 @@ public class GUI {
 
         // Adds the HBF panels to the masterPanel
         masterPanel.add(topPanel, BorderLayout.NORTH);
-        masterPanel.add(new JLabel("                      "), BorderLayout.EAST); // Crude buffer
+        masterPanel.add(new JLabel("                      "), BorderLayout.EAST); // Crude buffer YOLO
         masterPanel.add(middlePanel, BorderLayout.CENTER);
-        masterPanel.add(new JLabel("                      "), BorderLayout.WEST); // Crude buffer
+        masterPanel.add(new JLabel("                      "), BorderLayout.WEST); // Crude buffer YOLO
         masterPanel.add(bottomPanel, BorderLayout.SOUTH);
         refreshGUI();
     }
@@ -193,12 +191,16 @@ public class GUI {
         // Clears previous content
         clearGUI();
 
+        // Parses server response
+        String gameID = null;
+        if (path != null) { // If path is set, it's a server game
+            String jsonObject = javaClient.sendGet("http://omok.atwebpages.com/" + path);
+            String[] tokens = jsonObject.split("\"");
+            gameID = tokens[5];
+        }
+
         // Sets up the board panel
-        BoardPanel boardPanel;
-        if (tempP1 == null || tempP2 == null)
-            boardPanel = new BoardPanel(this, new HumanPlayer("John", StoneColor.BLUE), new HumanPlayer("Server", StoneColor.RED));
-        else
-            boardPanel = new BoardPanel(this, tempP1, tempP2);
+        BoardPanel boardPanel = new BoardPanel(this, gameID, playerOne, playerTwo);
 
 
         // Creates quit button
@@ -329,30 +331,6 @@ public class GUI {
         return toolBar;
     }
 
-    private void connectToServer(String path) {
-        setHeaderLabel("Connecting to Server...");
-        String response = new JavaClient().sendGet("http://omok.atwebpages.com/" + path);
-        System.out.println(response);
-//        HttpClient client = HttpClient.newHttpClient();
-//        HttpRequest request =
-//                HttpRequest.newBuilder()
-//                        .uri(URI.create("http://omok.atwebpages.com/info/"))
-//                        .GET()
-//                        .build();
-//
-//        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-//                .thenApply(HttpResponse::body)
-//                .thenAccept(System.out::println)
-//                .join();
-//        try {
-//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//            System.out.println("Response status code: " + response.statusCode());
-//            System.out.println("Response body: " + response.body());
-//        } catch (IOException | InterruptedException e) {
-//            e.printStackTrace();
-//        }
-    }
-
     private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
         Image image = icon.getImage();
         Image resizedImage = image.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH);
@@ -422,25 +400,5 @@ public class GUI {
             public void mouseExited(MouseEvent e) {}
         };
         textField.addMouseListener(mouseListener);
-    }
-
-    public static void MAIN(String[] args) {
-
-        try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException | UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-            // Handle the exception here, perhaps reverting to a default Look & Feel
-        }
-//
-//        SwingUtilities.invokeLater(() -> {
-//            try {
-//                if (MAIN == null)
-//                    MAIN = new Main();
-//                new GUI();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
     }
 }

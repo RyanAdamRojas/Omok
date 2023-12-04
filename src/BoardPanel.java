@@ -31,31 +31,49 @@ public class BoardPanel extends JPanel {
     };
     private final int BOARD_PIXEL_LENGTH = 512;
     private final int PIXELS_BTWN_LINES = 32;
-    private Player[] players = new Player[3]; // Size three to make less confusing
+    private Player[] players = new Player[3]; // Size three to avoid using index 0;
     private Player currentPlayer;
     private Board board;
     private Graphics brush;
-    private boolean gameActive = true;
     private GUI gui;
+    private String gameID;
     private int hoverRow = -1;
     private int hoverCol = -1;
+    private boolean gameActive;
+    private boolean isOnlineGame;
 
     BoardPanel() {
-        this(null, new HumanPlayer(), new ComputerPlayer());
+        this(null, null, new HumanPlayer(), new ComputerPlayer());
     }
 
-    BoardPanel(GUI gui, Player player1, Player player2) {
+    BoardPanel(GUI gui, String gameID, Player playerOne, Player playerTwo) {
+        // Setting Up
+        setPreferredSize(new Dimension(BOARD_PIXEL_LENGTH, BOARD_PIXEL_LENGTH));
         initMouseHoverEffect();
         initMouseClickFunctionality();
-        setPreferredSize(new Dimension(BOARD_PIXEL_LENGTH, BOARD_PIXEL_LENGTH));
         this.board = new Board();
         this.gui = gui;
-        players[1] = player1;
-        players[2] = player2;
-        setCurrentPlayer();
+        this.gameID = gameID;
+        this.gameActive = true;
+        players[1] = playerOne;
+        players[2] = playerTwo;
+        if (gameID != null)
+            this.isOnlineGame = true;
+
+        // Setting which player goes first
+        if (isOnlineGame) {
+            setCurrentPlayer(players[1]);   // Server requires human to move first
+            System.out.println("CurrentPlayer isComputer: " + currentPlayer.isComputer());  //  FIXME: DELETE
+        }
+        else
+            setFirstPlayerRandomly();       // Human or Local Computer may go first
+
+        // Queue the first move
         gui.setHeaderLabel(currentPlayer.getName() + " goes first!");
-        if (currentPlayer.isComputer())
-            computerMakeMove();
+        if (currentPlayer.isComputer()) {
+            System.out.println("First move will be made by computer at -1 -1:"); //  FIXME: DELETE
+            executeComputerMove();
+        }
     }
 
     /**Paints the BoardPanel*/
@@ -145,11 +163,13 @@ public class BoardPanel extends JPanel {
 
     /**Paints a stone on an intersection nearest to the mouse*/
     private void paintStoneUnderMouse() {
-        if (!currentPlayer.isComputer() &&
-            gameActive &&
+        if (gameActive &&
+            !currentPlayer.isComputer() &&
             !outsideBounds(hoverCol, hoverRow) &&
             !board.isCellOccupied(hoverCol - 1, hoverRow - 1))
-                paintStone(currentPlayer.getStoneColor(), hoverCol, hoverRow); // Then, paint the hover stone
+        {
+            paintStone(currentPlayer.getStoneColor(), hoverCol, hoverRow); // Then, paint the hover stone
+        }
     }
 
     /**Adds mouse hover placement effect to BoardPanel*/
@@ -180,10 +200,16 @@ public class BoardPanel extends JPanel {
     private void initMouseClickFunctionality() {
         addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                // Zero-based step-down conversion from  display grid to array[][]
-                if (!currentPlayer.isComputer() && gameActive)
+            public void mouseClicked(MouseEvent me) {
+                if (!currentPlayer.isComputer() && gameActive) {
+                    // Zero-based step-down conversion from display grid to array[][]
                     evaluateGameState(board.evaluateMove(currentPlayer, hoverCol - 1, hoverRow - 1));
+
+                    // Sends url request to server
+                    if (isOnlineGame) {
+                        handleServerResponse();
+                    }
+                }
             }
 
             @Override
@@ -200,26 +226,86 @@ public class BoardPanel extends JPanel {
         });
     }
 
+    private void handleServerResponse() {
+        // Builds url based on clicked board position
+        String query = String.format("http://omok.atwebpages.com/play/?pid=%s&x=%d&y=%d",
+                       gameID, (hoverCol - 1), (hoverRow - 1));
+
+        // Gets, tokenizes, and parses the result from query
+        String result = GUI.javaClient.sendGet(query);
+        String[] tokens = result.split("\"");
+
+        int responseX = -1;
+        int responseY = -1;
+        if (tokens.length > 20) {
+            responseX = parseTokenForInt(tokens[18]);
+            responseY = parseTokenForInt(tokens[20]);
+        }
+
+        // Log the server's response to the console
+        logServerResponse(result, hoverRow-1, hoverCol-1 , responseX, responseY);
+
+        // Execute the server's response
+        executeComputerMove(responseX, responseY);
+    }
+
+    private int parseTokenForInt(String token) {
+        try {
+            return Integer.parseInt(token.replace(":", "").replace(",", "").trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing integer from token: " + token + " - " + e.getMessage());
+            return -1;
+        }
+    }
+
+    private void logServerResponse(String result, int a, int b, int x2, int y2) {
+        if (x2 == -1 || y2 == -1) {
+            System.out.println("Error parsing tokens: " + result);
+        } else {
+            System.out.println("        Player moves: " + x1 + " " + y1);
+            System.out.println("     Server responds: " + x2 + " " + y2);
+            System.out.println("                      " + result);
+            board.print();
+        }
+    }
+
     private void evaluateGameState(State state) {
         switch (state) {
             case STONE_PLACED -> {
                 swapCurrentPlayer();
                 gui.setHeaderLabel("It's " + currentPlayer.getName() + "'s turn");
-                if (currentPlayer.isComputer())
-                    computerMakeMove();
+                if (currentPlayer.isComputer() && !isOnlineGame)
+                    executeComputerMove();
             }
             case BOARD_FULL -> {
                 gameActive = false;
                 gui.setHeaderLabel("Game Over: Board is full");
-                // Disable further actions or add restart option
             }
             case PLAYER_WIN -> {
                 gameActive = false;
                 gui.setHeaderLabel("Game Over: " + currentPlayer.getName() + " wins!");
-                // Highlight winning row and disable further actions
             }
         }
         repaint();
+    }
+
+    private void executeComputerMove() {
+        // Default values for offline moves
+        executeComputerMove(-1, -1);
+    }
+
+    private void executeComputerMove(final int x, final int y) {
+        int COMPUTER_THINK_DELAY = 1500;
+        new Timer(COMPUTER_THINK_DELAY, ae -> {
+            if (currentPlayer.isComputer()) { // Checks again in case of error
+                ComputerPlayer computerPlayer = (ComputerPlayer) currentPlayer;
+                if (isOnlineGame)
+                    evaluateGameState(board.evaluateMove(computerPlayer, x, y));  // Lambda requires final variables
+                else
+                    evaluateGameState(computerPlayer.placeRandomEmptyCell(board));
+                repaint();
+            }
+        }).start();
     }
 
     private boolean outsideBounds(int col, int row) {
@@ -230,22 +316,13 @@ public class BoardPanel extends JPanel {
         currentPlayer = currentPlayer.equals(players[1]) ? players[2] : players[1];
     }
 
-    private void setCurrentPlayer() {
+    private void setFirstPlayerRandomly() {
         Random random = new Random();
         currentPlayer = random.nextBoolean() ? players[1] : players[2];
     }
 
-    private void computerMakeMove() {
-        // Disable hover effect and UI interaction
-
-        // Using Timer pause for a moment while the computer "thinks"
-        new Timer(1500, ae -> {
-            if (currentPlayer.isComputer()) { // Checks again because
-                ComputerPlayer ai = (ComputerPlayer) currentPlayer;
-                evaluateGameState(ai.placeRandomEmptyCell(board));
-                repaint();
-            }
-        }).start();
+    private void setCurrentPlayer(Player player) {
+        this.currentPlayer = player;
     }
 
     public static void main(String[] args) {
