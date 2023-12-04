@@ -10,10 +10,11 @@ public class JavaClient {
      * Retrieve the document at the specified URL by sending a GET request; 
      * return null if the request/connection fails.
      */
-    public String sendGet(String urlString) {
+    public String sendGet(String path) {
+        String schemeAndAuthority = "http://omok.atwebpages.com/";
         HttpURLConnection con = null;
         try {
-            URL url = new URL(urlString);
+            URL url = new URL(schemeAndAuthority + path);
             con = (HttpURLConnection) url.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             StringBuilder response = new StringBuilder();

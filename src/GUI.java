@@ -194,7 +194,7 @@ public class GUI {
         // Parses server response
         String gameID = null;
         if (path != null) { // If path is set, it's a server game
-            String jsonObject = javaClient.sendGet("http://omok.atwebpages.com/" + path);
+            String jsonObject = javaClient.sendGet(path);
             String[] tokens = jsonObject.split("\"");
             gameID = tokens[5];
         }

@@ -10,23 +10,23 @@ public class BoardPanel extends JPanel {
     private final Color boardColor = new Color(255, 205, 145);
     private final Color boardLineColor = new Color(166, 121, 55);
     private final Color[] blueStonePalette = {
-            new Color(0, 10, 212, 200),
-            new Color(63, 163, 255, 200),
+            new Color(  0,  10, 212 ),
+            new Color( 63, 163, 255),
             new Color(255, 255, 255)
     };
     private final Color[] redStonePalette = {
-            new Color(150, 0, 0, 200),
-            new Color(255, 100, 100, 200),
+            new Color(150, 0, 0),
+            new Color(255, 100, 100),
             new Color(255, 255, 255)
     };
     private final Color[] greenStonePalette = {
-            new Color(0, 114, 0, 199),
-            new Color(84, 208, 84, 199),
+            new Color(0, 114, 0),
+            new Color(84, 208, 84),
             new Color(218, 255, 218)
     };
     private final Color[] whiteStonePalette = {
-            new Color(173, 173, 173, 200),
-            new Color(234, 234, 234, 200),
+            new Color(162, 162, 162),
+            new Color(232, 232, 232),
             new Color(255, 255, 255)
     };
     private final int BOARD_PIXEL_LENGTH = 512;
@@ -60,20 +60,14 @@ public class BoardPanel extends JPanel {
         if (gameID != null)
             this.isOnlineGame = true;
 
-        // Setting which player goes first
-        if (isOnlineGame) {
-            setCurrentPlayer(players[1]);   // Server requires human to move first
-            System.out.println("CurrentPlayer isComputer: " + currentPlayer.isComputer());  //  FIXME: DELETE
-        }
+        // Setting up the first move
+        if (isOnlineGame)
+            setCurrentPlayer(players[1]);   // In online game, the server requires human to move first
         else
-            setFirstPlayerRandomly();       // Human or Local Computer may go first
-
-        // Queue the first move
+            setFirstPlayerRandomly();       // Human or offline computer may go first
         gui.setHeaderLabel(currentPlayer.getName() + " goes first!");
-        if (currentPlayer.isComputer()) {
-            System.out.println("First move will be made by computer at -1 -1:"); //  FIXME: DELETE
+        if (currentPlayer.isComputer())     //  If computer must make first move
             executeComputerMove();
-        }
     }
 
     /**Paints the BoardPanel*/
@@ -85,6 +79,7 @@ public class BoardPanel extends JPanel {
         paintBoardLines();
         paintStonesFromBoard();
         paintStoneUnderMouse();
+        paintWinningStreak();
     }
 
     /**Paints precise pixel-based rectangle*/
@@ -117,7 +112,7 @@ public class BoardPanel extends JPanel {
             for (int row = 0; row < board.size(); row++) {
                 Player currentPlayer = board.getCells()[col][row];
                 if (currentPlayer != null) {
-                    // Zero-based step-up conversion from array[][] to display grid
+                    // +1 because board objects coordinates are zero based where boardPanel are not
                     paintStone(currentPlayer.getStoneColor(), col + 1, row + 1);
                 }
             }
@@ -169,6 +164,17 @@ public class BoardPanel extends JPanel {
             !board.isCellOccupied(hoverCol - 1, hoverRow - 1))
         {
             paintStone(currentPlayer.getStoneColor(), hoverCol, hoverRow); // Then, paint the hover stone
+        }
+    }
+
+    private void paintWinningStreak() {
+        if (!gameActive){
+            for (Place place: board.getWinningRow()) {
+                if (place != null) {
+                    // +1 because board objects coordinates are zero based where boardPanel are not
+                    paintStone(StoneColor.GREEN, place.x + 1, place.y + 1);
+                }
+            }
         }
     }
 
@@ -227,9 +233,9 @@ public class BoardPanel extends JPanel {
     }
 
     private void handleServerResponse() {
-        // Builds url based on clicked board position
-        String query = String.format("http://omok.atwebpages.com/play/?pid=%s&x=%d&y=%d",
-                       gameID, (hoverCol - 1), (hoverRow - 1));
+        // Builds urls path based on clicked board position
+        // +1 because board objects coordinates are zero based where boardPanel are not
+        String query = String.format("play/?pid=%s&x=%d&y=%d", gameID, (hoverCol - 1), (hoverRow - 1));
 
         // Gets, tokenizes, and parses the result from query
         String result = GUI.javaClient.sendGet(query);
@@ -243,6 +249,7 @@ public class BoardPanel extends JPanel {
         }
 
         // Log the server's response to the console
+        // +1 because board objects coordinates are zero based where boardPanel are not
         logServerResponse(result, hoverRow-1, hoverCol-1 , responseX, responseY);
 
         // Execute the server's response
@@ -258,7 +265,7 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    private void logServerResponse(String result, int a, int b, int x2, int y2) {
+    private void logServerResponse(String result, int x1, int y1, int x2, int y2) {
         if (x2 == -1 || y2 == -1) {
             System.out.println("Error parsing tokens: " + result);
         } else {
