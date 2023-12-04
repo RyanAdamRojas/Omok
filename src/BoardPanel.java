@@ -97,7 +97,7 @@ public class BoardPanel extends JPanel {
         // Traverses Board.cells and paints the players stones
         for (int col = 0; col < board.size(); col++){
             for (int row = 0; row < board.size(); row++) {
-                Player currentPlayer = board.getCells()[col][row]; // FIXME: Simplify
+                Player currentPlayer = board.getCells()[col][row];
                 if (currentPlayer != null) {
                     // Zero-based step-up conversion from array[][] to display grid
                     paintStone(currentPlayer.getStoneColor(), col + 1, row + 1);

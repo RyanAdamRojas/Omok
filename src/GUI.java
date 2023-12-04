@@ -40,7 +40,8 @@ public class GUI {
 
     private void initGUI() {
         masterPanel.setLayout(new BorderLayout());
-        showTitleScreen();
+//        showTitleScreen();
+        showSelectionScreen();
     }
 
     public void showTitleScreen() {
@@ -72,9 +73,11 @@ public class GUI {
         setHeaderLabel("Lets Set Things Up");
 
         // Creates setOpponents panel
-        JRadioButton humanButton = createJRadioButton("Human");
-        JRadioButton computerButton = createJRadioButton("Computer");
-        JPanel setOpponentPanel = createSetOppPanel(humanButton, computerButton);
+        JRadioButton humanButton = createJRadioButton("Another Human");
+        JRadioButton computerButton = createJRadioButton("Your Computer");
+        JRadioButton smartServerButton = createJRadioButton("Smart Computer (server)");
+        JRadioButton randomizedServerButton = createJRadioButton("Random Computer (server)");
+        JPanel setOpponentPanel = createSetOppPanel(humanButton, computerButton, smartServerButton, randomizedServerButton);
 
         // Creates setName panel
         JTextField name1TextField = createJTextField("Type here");
@@ -88,27 +91,61 @@ public class GUI {
 
         // Creates button actions
         humanButton.addActionListener(e -> {
-            tempP2 = new HumanPlayer();    // Creates new player
+            setHeaderLabel("Human vs Human");
+            if (!computerButton.isSelected())
+                setHeaderLabel("Choose Your Opponent");
+            tempP2 = new HumanPlayer();                 // Creates new player
             tempP2.setStoneColor(StoneColor.RED);
-            setNamePanel1.setVisible(true); // Sets subsequent panels visible
+            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
-
-            if (computerButton.isSelected()){
-                computerButton.setSelected(false); // Deselects other button
-                name2TextField.setText("Type here"); // Resets player 2 text
-            }
+            name2TextField.setText("Type here");        // Resets player 2 textField
+            computerButton.setSelected(false);          // Deselects other radioButtons
+            smartServerButton.setSelected(false);
+            randomizedServerButton.setSelected(false);
         });
 
         computerButton.addActionListener(e -> {
-            tempP2 = new ComputerPlayer(); // Creates new player
+            setHeaderLabel("Human vs Machine");
+            if (!computerButton.isSelected())
+                setHeaderLabel("Choose Your Opponent");
+            tempP2 = new ComputerPlayer();              // Creates new ComputerPlayer
             tempP2.setStoneColor(StoneColor.WHITE);
-            setNamePanel1.setVisible(true); // Sets subsequent panels visible
+            humanButton.setSelected(false);             // Deselects other radioButtons
+            smartServerButton.setSelected(false);
+            randomizedServerButton.setSelected(false);
+            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
             setNamePanel2.setVisible(true);
+            name2TextField.setText(tempP2.getName());   // Sets textField as computers name
+        });
 
-            if (humanButton.isSelected())
-                humanButton.setSelected(false);  // Deselects other button
+        smartServerButton.addActionListener(e -> {
+            setHeaderLabel("Human vs Smart Machine");
+            if (!smartServerButton.isSelected())
+                setHeaderLabel("Choose Your Opponent");
+            tempP2 = new ComputerPlayer();              // Creates new ComputerPlayer
+            tempP2.setStoneColor(StoneColor.WHITE);
+            humanButton.setSelected(false);             // Deselects other radioButtons
+            computerButton.setSelected(false);
+            randomizedServerButton.setSelected(false);
+            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
+            setNamePanel2.setVisible(true);
+            name2TextField.setText(tempP2.getName());   // Sets textField as computers name
+            connectToServer("new/?strategy=smart");
+        });
 
-            name2TextField.setText(tempP2.getName()); // Sets text as computers random name
+        randomizedServerButton.addActionListener(e -> {
+            setHeaderLabel("Human vs Machine");
+            if (!randomizedServerButton.isSelected())
+                setHeaderLabel("Choose Your Opponent");
+            tempP2 = new ComputerPlayer();              // Creates new ComputerPlayer
+            tempP2.setStoneColor(StoneColor.WHITE);
+            humanButton.setSelected(false);             // Deselects other radioButtons
+            computerButton.setSelected(false);
+            smartServerButton.setSelected(false);
+            setNamePanel1.setVisible(true);             // Sets subsequent panels visible
+            setNamePanel2.setVisible(true);
+            name2TextField.setText(tempP2.getName());   // Sets textField as computers name
+            connectToServer("new/?strategy=random");
         });
 
         backToTitleButton.addActionListener(e -> showTitleScreen());
@@ -135,7 +172,7 @@ public class GUI {
         // Setting up the topPanel, middlePanel, and bottomPanel (HBF) panels
         topPanel.add(topPanelLabel, BorderLayout.CENTER);
         GridLayout gridLayout = new GridLayout(7,1);
-        gridLayout.setVgap(5);
+        gridLayout.setVgap(10);
         middlePanel.setLayout(gridLayout);
         middlePanel.add(setOpponentPanel);
         middlePanel.add(setNamePanel1);
@@ -211,16 +248,19 @@ public class GUI {
         topPanel.repaint();
     }
 
-    private JPanel createSetOppPanel(JRadioButton humanButton, JRadioButton computerButton) {
+    private JPanel createSetOppPanel(JRadioButton humanButton, JRadioButton computerButton,
+                                     JRadioButton smartSummerButton, JRadioButton randomizedServerButton) {
         // Creates components
         JPanel setOpponentPanel = new JPanel();
         JLabel setOpponentLabel = createLargeBodyLabel("Play Against");
 
         // Specifies look and layout
-        setOpponentPanel.setLayout(new GridLayout(3,1));
+        setOpponentPanel.setLayout(new GridLayout(5,1));
         setOpponentPanel.add(setOpponentLabel);
         setOpponentPanel.add(humanButton);
         setOpponentPanel.add(computerButton);
+        setOpponentPanel.add(smartSummerButton);
+        setOpponentPanel.add(randomizedServerButton);
         return setOpponentPanel;
     }
 
@@ -274,26 +314,6 @@ public class GUI {
         ImageIcon icon2 = new ImageIcon("res/Images/online.png");
         JButton button2 = new JButton(resizeIcon(icon2, 24, 24));
         button2.setToolTipText("Connect");
-        button2.addActionListener(al -> {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request =
-                    HttpRequest.newBuilder()
-                            .uri(URI.create("http://omok.atwebpages.com/info/"))
-                            .GET()
-                            .build();
-
-            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(HttpResponse::body)
-                    .thenAccept(System.out::println)
-                    .join();
-            try {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                System.out.println("Response status code: " + response.statusCode());
-                System.out.println("Response body: " + response.body());
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
         toolBar.add(button2);
 
         ImageIcon icon3 = new ImageIcon("res/Images/power.png");
@@ -307,6 +327,30 @@ public class GUI {
         toolBar.add(button4);
 
         return toolBar;
+    }
+
+    private void connectToServer(String path) {
+        setHeaderLabel("Connecting to Server...");
+        String response = new JavaClient().sendGet("http://omok.atwebpages.com/" + path);
+        System.out.println(response);
+//        HttpClient client = HttpClient.newHttpClient();
+//        HttpRequest request =
+//                HttpRequest.newBuilder()
+//                        .uri(URI.create("http://omok.atwebpages.com/info/"))
+//                        .GET()
+//                        .build();
+//
+//        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+//                .thenApply(HttpResponse::body)
+//                .thenAccept(System.out::println)
+//                .join();
+//        try {
+//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//            System.out.println("Response status code: " + response.statusCode());
+//            System.out.println("Response body: " + response.body());
+//        } catch (IOException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {

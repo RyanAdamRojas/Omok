@@ -31,10 +31,4 @@ public class JavaClient {
         }
         return null;
     }
-
-    public static void main(String[] args) {
-        String url = "http://omok.atwebpages.com/info/";
-        String response = new JavaClient().sendGet(url);
-        System.out.println(response);
-    }
 }
