@@ -33,8 +33,7 @@ public class GUI {
 
     private void initGUI() {
         masterPanel.setLayout(new BorderLayout());
-//        showTitleScreen();
-        showSelectionScreen();
+        showTitleScreen();
     }
 
     public void showTitleScreen() {
@@ -44,19 +43,62 @@ public class GUI {
         // Creates title screen components
         JButton goToSelectionScreenButton = createJButton("Start");
         goToSelectionScreenButton.addActionListener(e -> showSelectionScreen());
-        setHeaderLabel("Welcome To");
-        JLabel title = new JLabel("OMOK");
-        Font titleFont =  new Font("SF Text", Font.BOLD, 100);
+
+        JLabel topPanelLabel = new JLabel("Welcome To", SwingConstants.CENTER);
+        Font headerFont = new Font("Arial", Font.BOLD, 24);
+        topPanelLabel.setFont(headerFont);
+
+        JLabel title = new JLabel("OMOK", SwingConstants.CENTER);
+        Font titleFont = new Font("SF Text", Font.BOLD, 100);
         title.setFont(titleFont);
 
-        // Adding components to panels
-        topPanel.add(topPanelLabel);
-        middlePanel.add(title, BorderLayout.CENTER);
-        bottomPanel.add(goToSelectionScreenButton);
+        // Create a JLayeredPane to manage the layering
+        int WIDTH = 512;
+        int HEIGHT = 700;
+        int topPanelHeight = 50;
+        int middlePanelHeight = 150;
+        int bottomPanelHeight = 100;
 
-        refreshMasterPanel();
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(WIDTH, HEIGHT)); // Set to your desired size
+
+        // Creates the StoneAnimationPanels and set their bounds
+        StoneAnimationPanel stones1 = new StoneAnimationPanel(5, 100, 1);
+        StoneAnimationPanel stones2 = new StoneAnimationPanel(10, 50, 1);
+        StoneAnimationPanel stones3 = new StoneAnimationPanel(20, 20, 1);
+        stones1.setBounds(0, 0, WIDTH, HEIGHT); // Set bounds to match the layeredPane size
+        stones2.setBounds(0, 0, WIDTH, HEIGHT); // Set bounds to match the layeredPane size
+        stones3.setBounds(0, 0, WIDTH, HEIGHT); // Set bounds to match the layeredPane size
+
+        // Add the StoneAnimationPanel to different layer
+        layeredPane.add(stones3, Integer.valueOf(1));
+        layeredPane.add(stones2, Integer.valueOf(2));
+        layeredPane.add(stones1, Integer.valueOf(3));
+
+
+        // Set bounds and add the other panels to a higher layer so they appear above
+        topPanel.setBounds(0, 0, WIDTH, topPanelHeight);
+        topPanel.add(topPanelLabel);
+        topPanel.setOpaque(false);
+
+        middlePanel.setBounds(0, topPanelHeight, WIDTH, middlePanelHeight);
+        middlePanel.add(title);
+        middlePanel.setOpaque(false);
+
+        bottomPanel.setBounds(0, HEIGHT - bottomPanelHeight, WIDTH, bottomPanelHeight);
+        bottomPanel.add(goToSelectionScreenButton);
+        bottomPanel.setOpaque(false);
+
+        // Add the components to the layeredPane specifying the layer
+        layeredPane.add(topPanel, Integer.valueOf(JLayeredPane.PALETTE_LAYER));
+        layeredPane.add(middlePanel, Integer.valueOf(JLayeredPane.MODAL_LAYER)); // Ensuring it's above PALETTE_LAYER
+        layeredPane.add(bottomPanel, Integer.valueOf(JLayeredPane.MODAL_LAYER)); // Ensuring it's above PALETTE_LAYER
+
+        // Finally, add the layeredPane to the masterPanel instead of adding components directly
+        masterPanel.add(layeredPane);
         refreshGUI();
     }
+
 
     public void showSelectionScreen() {
         // Clears previous content
@@ -158,9 +200,9 @@ public class GUI {
                 playerOne.setName(name1TextField.getText());
                 playerTwo.setName(name2TextField.getText());
                 if (playerOne.getName().equals("Type here"))
-                    playerOne.setName("Player-One");
+                    playerOne.setName("Player One");
                 if (playerTwo.getName().equals("Type here"))
-                    playerTwo.setName("Player-Two");
+                    playerTwo.setName("Player Two");
                 showGameSessionScreen();
             } else {
                 setHeaderLabel("Choose an opponent first!");
@@ -200,7 +242,7 @@ public class GUI {
         }
 
         // Sets up the board panel
-        BoardPanel boardPanel = new BoardPanel(this, gameID, playerOne, playerTwo);
+        BoardPanel boardPanel = new BoardPanel(this, javaClient, gameID, playerOne, playerTwo);
 
 
         // Creates quit button
@@ -222,14 +264,11 @@ public class GUI {
         middlePanel.add(boardPanel, BorderLayout.CENTER);
         bottomPanel.add(quitGameButton);
         bottomPanel.add(createToolBar(), BorderLayout.NORTH);
-        refreshMasterPanel();
-        refreshGUI();
-    }
 
-    private void refreshMasterPanel() {
         masterPanel.add(topPanel, BorderLayout.NORTH);
         masterPanel.add(middlePanel, BorderLayout.CENTER);
         masterPanel.add(bottomPanel, BorderLayout.SOUTH);
+        refreshGUI();
     }
 
     private void refreshGUI() {
@@ -305,7 +344,7 @@ public class GUI {
         return menuBar;
     }
 
-    public JToolBar createToolBar() {
+    private JToolBar createToolBar() {
         JToolBar toolBar = new JToolBar();
 
         ImageIcon icon1 = new ImageIcon("res/Images/play.png");
@@ -380,7 +419,7 @@ public class GUI {
         });
     }
 
-    public void addTextSelectionEffect(JTextField textField) {
+    private void addTextSelectionEffect(JTextField textField) {
         MouseListener mouseListener = new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {

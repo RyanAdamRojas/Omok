@@ -1,5 +1,6 @@
 // Authors: Ryan Adam Rojas, Sophia Montenegro
 
+import javax.sound.midi.Soundbank;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -108,6 +109,7 @@ public class Board {
      */
     public void placeStone(Player player, int col, int row) {
         if (col >= 0 && col < size && row >= 0 && row < size) {
+            System.out.println("Board: Placing at " + col + row);
             cells[col][row] = player; // Places a stone
             occupiedCellCount++;
             if (occupiedCellCount == maxOccupiedCellCount)
@@ -186,6 +188,7 @@ public class Board {
      * a horizontal, vertical, or diagonal direction.
      */
     public boolean isWonBy(Player player) {
+        System.out.println("Board: " + player.getName() + " (" + player.getStoneColor().getSymbol() + ") wins!");
         // TODO Traverse cells neighbors depth first search style.
         return streakDiagonalRight(player) ||
                 streakDiagonalLeft(player) ||
@@ -312,18 +315,38 @@ public class Board {
     }
 
     public void print(){
+        int count = 0;
         for(int row = 0; row < size; row++){
+
+            // Prints row numbers
+            if(count == 0) {
+                System.out.print(" ");
+                for (int i = 0; i < size; i++) {
+                    if (i < 10)
+                        System.out.print(" " + i);
+                    else
+                        System.out.print(" " + (i - 10)); // 0, 1, 2 instead of 10, 11, 12
+                }
+                System.out.println();
+            }
+
+            // Prints column numbers
+            if (count < 10)
+                System.out.print(count++);
+            else
+                System.out.print(count++ - 10);
+
+            // Prints the board
             for(int col = 0; col < size; col++){
                 Player player = cells[col][row];
-                if (player == null)
+                if (player == null)         // Prints intersections
                     System.out.print(" .");
-                else
+                else                        // Prints player symbols
                     System.out.print(" " + player.getStoneColor().getSymbol());
             }
             System.out.println();
         }
         System.out.println();
-
     }
 
 }

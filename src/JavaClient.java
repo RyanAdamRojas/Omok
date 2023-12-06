@@ -11,7 +11,7 @@ public class JavaClient {
      * return null if the request/connection fails.
      */
     public String sendGet(String path) {
-        String schemeAndAuthority = "http://omok.atwebpages.com/";
+        String schemeAndAuthority = "http://omok.atwebpages.com/"; // Schem and Authority never change
         HttpURLConnection con = null;
         try {
             URL url = new URL(schemeAndAuthority + path);

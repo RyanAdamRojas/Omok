@@ -1,8 +1,16 @@
+import javax.print.attribute.standard.Media;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Random;
 
 /**Graphically represents the Board class*/
@@ -31,6 +39,7 @@ public class BoardPanel extends JPanel {
             new Color(232, 232, 232),
             new Color(255, 255, 255)
     };
+    private static JFrame frame; // For debugging
     private final int BOARD_PIXEL_LENGTH = 512;
     private final int PIXELS_BTWN_LINES = 32;
     private Player[] players = new Player[3]; // Size three to avoid using index 0;
@@ -38,6 +47,7 @@ public class BoardPanel extends JPanel {
     private Board board;
     private Graphics brush;
     private GUI gui;
+    private JavaClient javaClient;
     private String gameID;
     private int hoverRow = -1;
     private int hoverCol = -1;
@@ -45,19 +55,20 @@ public class BoardPanel extends JPanel {
     private boolean isOnlineGame;
 
     BoardPanel() {
-        this(null, null, new HumanPlayer(), new ComputerPlayer());
+        this(null, null, null, new HumanPlayer(), new ComputerPlayer());
     }
 
-    BoardPanel(GUI gui, String gameID, Player playerOne, Player playerTwo) {
+    BoardPanel(GUI gui, JavaClient javaClient, String gameID, Player playerOne, Player playerTwo) {
         // Setting Up
         setPreferredSize(new Dimension(BOARD_PIXEL_LENGTH, BOARD_PIXEL_LENGTH));
         initMouseHoverEffect();
         initMouseClickFunctionality();
         this.board = new Board();
         this.gui = gui;
+        this.javaClient = javaClient;
         this.gameID = gameID;
         this.gameActive = true;
-        players[1] = playerOne;
+        players[1] = playerOne.getName().equals("Name not set") ? new HumanPlayer("Player One", StoneColor.BLUE) : playerOne;
         players[2] = playerTwo;
         if (gameID != null)
             this.isOnlineGame = true;
@@ -67,7 +78,7 @@ public class BoardPanel extends JPanel {
             setCurrentPlayer(players[1]);   // In online game, the server requires human to move first
         else
             setFirstPlayerRandomly();       // Human or offline computer may go first
-        gui.setHeaderLabel(currentPlayer.getName() + " goes first!");
+        setGUIHeaderLabel(currentPlayer.getName() + " goes first!");
         if (currentPlayer.isComputer())     //  If computer must make first move
             executeComputerMove();
     }
@@ -212,7 +223,6 @@ public class BoardPanel extends JPanel {
                 if (!currentPlayer.isComputer() && gameActive) {
                     // Zero-based step-down conversion from display grid to array[][]
                     evaluateGameState(board.evaluateMove(currentPlayer, hoverCol - 1, hoverRow - 1));
-
                     // Sends url request to server
                     if (isOnlineGame) {
                         handleServerResponse();
@@ -235,7 +245,7 @@ public class BoardPanel extends JPanel {
     }
 
     private void handleServerResponse() {
-        // Builds urls path based on clicked board position
+        // Builds urls path based on mouse position when clicked
         // +1 because board objects coordinates are zero based where boardPanel are not
         String query = String.format("play/?pid=%s&x=%d&y=%d", gameID, (hoverCol - 1), (hoverRow - 1));
 
@@ -246,8 +256,8 @@ public class BoardPanel extends JPanel {
         int responseX = -1;
         int responseY = -1;
         if (tokens.length > 20) {
-            responseX = parseTokenForInt(tokens[18]);
-            responseY = parseTokenForInt(tokens[20]);
+            responseX = parseTokenForInt(tokens[18]); // My helper method
+            responseY = parseTokenForInt(tokens[20]); // My helper method
         }
 
         // Log the server's response to the console
@@ -273,29 +283,38 @@ public class BoardPanel extends JPanel {
         } else {
             System.out.println("        Player moves: " + x1 + " " + y1);
             System.out.println("     Server responds: " + x2 + " " + y2);
-            System.out.println("                      " + result);
-            board.print();
+            System.out.println(result); // DEBUG
         }
     }
 
     private void evaluateGameState(State state) {
         switch (state) {
             case STONE_PLACED -> {
+                playSound("stoneClick.wav");
+                board.print();
                 swapCurrentPlayer();
-                gui.setHeaderLabel("It's " + currentPlayer.getName() + "'s turn");
+                setGUIHeaderLabel("It's " + currentPlayer.getName() + "'s turn");
                 if (currentPlayer.isComputer() && !isOnlineGame)
                     executeComputerMove();
             }
             case BOARD_FULL -> {
                 gameActive = false;
-                gui.setHeaderLabel("Game Over: Board is full");
+                setGUIHeaderLabel("Game Over: Board is full");
             }
             case PLAYER_WIN -> {
+                playSound("bruh.wav");
                 gameActive = false;
-                gui.setHeaderLabel("Game Over: " + currentPlayer.getName() + " wins!");
+                setGUIHeaderLabel("Game Over: " + currentPlayer.getName() + " wins!");
             }
         }
         repaint();
+    }
+
+    private void setGUIHeaderLabel(String message) {
+        if (gui != null)
+            gui.setHeaderLabel(message);
+        else
+            frame.setTitle(message);
     }
 
     private void executeComputerMove() {
@@ -317,6 +336,31 @@ public class BoardPanel extends JPanel {
         }).start();
     }
 
+    public void playSound(String fileName) {
+        // Using getResource to get the sound file within the resources folder
+        // "/res/Sounds/stoneClick.wav"
+        String directory = "/Sounds/";
+        URL soundURL = getClass().getResource(directory + fileName);
+
+        // Check if the URL is not null
+        if (soundURL != null) {
+            try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundURL)) {
+                // Get a sound clip resource
+                Clip clip = AudioSystem.getClip();
+
+                // Open audio clip and load samples from the audio input stream
+                clip.open(audioStream);
+
+                // Play the audio clip
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Sound file not found: /Sounds/stoneClick.wav");
+        }
+    }
+
     private boolean outsideBounds(int col, int row) {
         return (row < 1 || row > 15) || (col < 1 || col > 15);
     }
@@ -336,7 +380,7 @@ public class BoardPanel extends JPanel {
 
     public static void main(String[] args) {
         // For testing
-        JFrame frame = new JFrame();
+        frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure the application closes when the frame is closed
         frame.setSize(new Dimension(512,512));
         frame.add(new BoardPanel());    // Adds the BoardPanel before calling pack
